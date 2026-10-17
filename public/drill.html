@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>UI/UX実践ドリル</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: 方眼紙の上で設計図を検討するような一列レイアウト。主役は問題カードと比較パネル */
+:root{
+  --bg:#eef1f6; --surface:#ffffff; --fg:#14202e; --muted:#566475; --line:#cdd5e0; --grid:rgba(35,71,214,.07);
+  --accent:#2347d6; --on-accent:#ffffff; --accent-soft:#e3e9fc;
+  --ok:#0f7a58; --ok-bg:#dff4ec; --ng:#b3261e; --ng-bg:#fbe5e3;
+  --f-body:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  --f-mono:"DM Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1520; --surface:#16202c; --fg:#e6ecf3; --muted:#9aa7b8; --line:#2a3745; --grid:rgba(125,155,255,.07);
+  --accent:#7d9bff; --on-accent:#0e1520; --accent-soft:#1f2c4d;
+  --ok:#4cc79a; --ok-bg:#12332a; --ng:#ff8a80; --ng-bg:#3b1d1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1520; --surface:#16202c; --fg:#e6ecf3; --muted:#9aa7b8; --line:#2a3745; --grid:rgba(125,155,255,.07);
+  --accent:#7d9bff; --on-accent:#0e1520; --accent-soft:#1f2c4d;
+  --ok:#4cc79a; --ok-bg:#12332a; --ng:#ff8a80; --ng-bg:#3b1d1b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.8;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(28px,6vw,40px);font-weight:900;line-height:1.3;text-wrap:balance}
+h2{font-size:20px;font-weight:700;line-height:1.5;text-wrap:balance}
+.label{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);max-width:36em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.set{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:12px;text-align:left}
+.set .count{font-family:var(--f-mono);font-size:13px;color:var(--accent)}
+.set p{color:var(--muted);font-size:15px}
+.set .best{font-family:var(--f-mono);font-size:12px;color:var(--muted);min-height:1.6em}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:4px;padding:12px 20px;font-weight:700;min-height:48px;align-self:flex-start}
+.btn.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+
+.bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.dots{display:flex;gap:6px;flex:1;min-width:120px}
+.dots i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.dots i.done{background:var(--accent)}
+.dots i.now{background:var(--fg)}
+.quit{background:none;border:0;color:var(--muted);text-decoration:underline;padding:8px;min-height:44px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:20px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:4px;padding:12px 16px;min-height:48px;width:100%}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono);font-weight:500;color:var(--muted);flex:none;width:1.4em}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--ng);background:var(--ng-bg)}
+.opt:disabled{cursor:default}
+
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:600px){.ab{grid-template-columns:1fr}}
+.panel{background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:10px;text-align:left;min-width:0}
+.panel:hover:not(:disabled){border-color:var(--accent)}
+.panel .tag{font-family:var(--f-mono);font-weight:500;font-size:13px}
+.panel.sel{border-color:var(--accent);background:var(--accent-soft)}
+.panel.right{border-color:var(--ok);background:var(--ok-bg)}
+.panel.wrong{border-color:var(--ng);background:var(--ng-bg)}
+.panel:disabled{cursor:default}
+.step{display:flex;flex-direction:column;gap:12px}
+
+.fb{border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.fb.ok{background:var(--ok-bg);border-left:4px solid var(--ok)}
+.fb.ng{background:var(--ng-bg);border-left:4px solid var(--ng)}
+.fb strong{font-weight:700}
+.fb.ok strong{color:var(--ok)} .fb.ng strong{color:var(--ng)}
+.fb p{font-size:15px}
+
+.score{display:flex;align-items:baseline;gap:12px}
+.score b{font-size:56px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.score span{font-family:var(--f-mono);color:var(--muted)}
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.review li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
+.review .pt{font-family:var(--f-mono);flex:none;min-width:3.2em;font-variant-numeric:tabular-nums;color:var(--accent)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+
+/* 比較用ミニ画面(評価対象なので常に明るい紙面で表示) */
+.mock{background:#fff;color:#222;border:1px solid #d5d9e0;border-radius:6px;padding:14px;font-size:12px;line-height:1.6;font-family:var(--f-body);display:flex;flex-direction:column;gap:10px}
+.mock *{margin:0}
+.mock .scn{font-size:10px;color:#8a93a0;font-family:var(--f-mono)}
+.mock .b{border:0;border-radius:4px;padding:8px 10px;font:inherit;font-weight:700;text-align:center;background:#2a6df4;color:#fff}
+.mock .b.plain{background:#e3e5e8;color:#333;font-weight:400}
+.mock .b.out{background:#fff;color:#2a6df4;border:1px solid #2a6df4;font-weight:500}
+.mock .b.row2{display:flex;gap:8px}
+.mock .rowb{display:flex;gap:8px}.mock .rowb>*{flex:1}
+.mock .in{border:1px solid #b9bfc9;border-radius:4px;padding:8px 10px;color:#222;background:#fff}
+.mock .in.ph{color:#9aa1ac}
+.mock .in.err{border-color:#d12f2f;border-width:2px}
+.mock .lb{font-size:11px;font-weight:700;color:#333}
+.mock .msg{color:#c62828;font-size:11px;display:flex;gap:4px;align-items:center}
+.mock .banner{background:#fdeaea;color:#c62828;padding:6px 8px;border-radius:4px}
+.mock .tabs{display:flex;justify-content:space-around;border-top:1px solid #d5d9e0;padding-top:8px;margin-top:4px}
+.mock .tabs div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#444}
+.mock .tabs div.on{color:#2a6df4;font-weight:700}
+.mock .tabs svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const ic={
+  home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
+  search:'<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>',
+  bell:'<svg viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg>',
+  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>'
+};
+const warn='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 17h.01"/></svg>';
+
+const SETS={
+basic:{
+  name:'基礎編',
+  desc:'数値や原則を、実際の画面づくりの場面に当てはめて答えます。',
+  qs:[
+    {q:'スマートフォン向けのボタンを作っています。指で押しやすく、押し間違いを減らすために確保したい最小のタップ領域はどれですか。',
+     opts:['24 × 24 px','32 × 32 px','44 × 44 pt（iOS）／48 × 48 dp（Android）以上','見た目が小さければ領域も小さくてよい'],ans:2,
+     why:'指先の接触面はおよそ10mm前後です。iOSは44pt、Androidは48dpが目安です。アイコン自体が小さくても、余白を含めた押せる範囲を広げます。'},
+    {q:'本文テキストと背景の色を決めます。WCAG 2.x のAAを満たすには、通常サイズの文字でどのコントラスト比が必要ですか。',
+     opts:['2 : 1 以上','3 : 1 以上','4.5 : 1 以上','7 : 1 以上（これが最低ライン）'],ans:2,
+     why:'通常サイズの文字はAAで4.5:1以上が必要です。大きな文字（約24px以上、または太字で約19px以上）は3:1以上、AAAは7:1以上です。'},
+    {q:'登録フォームの余白を調整します。「ラベル」と「入力欄」の間隔、「項目グループどうし」の間隔はどの関係にするのが適切ですか。',
+     opts:['どちらも同じ間隔にそろえる','ラベルと入力欄の間隔を、グループ間の間隔より狭くする','ラベルと入力欄の間隔を、グループ間の間隔より広くする','間隔は気にせず区切り線で分ける'],ans:1,
+     why:'近接の原則です。関連する要素は近づけ、別のまとまりは離します。ラベルが上下どちらの入力欄に属すのか、間隔で判断できるようにします。'},
+    {q:'メールアドレスの入力ミスを知らせる表示を作ります。もっとも分かりやすい表示はどれですか。',
+     opts:['入力欄の枠を赤くするだけにする','画面上部に「エラーがあります」とだけ表示する','該当欄の近くに、アイコンと「@が含まれていません」のような修正方法を表示する','送信時にダイアログで「入力が正しくありません」と出す'],ans:2,
+     why:'色だけに頼らず、アイコンと文章で場所と原因を伝えます。直し方まで示すと、やり直しの負担が小さくなります。'},
+    {q:'ランディングページの1画面に、主要な行動（申し込みなど）のボタンを置きます。配置の考え方として適切なものはどれですか。',
+     opts:['選択肢を増やすため、同じ強さのボタンを3つ並べる','最も大事な行動を1つだけ強く見せ、他は控えめなスタイルにする','すべてのボタンを目立つ色にして見落としを防ぐ','ボタンは小さくして文章中に埋め込む'],ans:1,
+     why:'同じ強さの選択肢が並ぶと、迷いが生まれます。主役を1つに絞り、副次的な操作は枠線やテキストリンクにして階層をつけます。'},
+    {q:'日本語の記事本文の幅を決めます。読みやすさの目安として、1行の文字数はどれくらいが適切ですか。',
+     opts:['10〜15文字','35〜45文字程度','80〜100文字','画面幅いっぱいに広げる'],ans:1,
+     why:'1行が長すぎると、次の行へ視線を戻すときに行を見失います。短すぎると読み進めるリズムが途切れます。日本語では40字前後が目安です。'},
+    {q:'1日に何度も使う「投稿する」ボタンをスマホ画面に置きます。押しやすさを高める配置と大きさはどれですか。',
+     opts:['画面上部の隅に、小さなアイコンで置く','見た目をすっきりさせるため、メニューの奥にしまう','文章の途中に、小さなテキストリンクとして入れる','親指が届く画面下部に、十分な大きさで置く'],ans:3,
+     why:'ボタンは大きく、近いほど素早く押せます（フィッツの法則）。片手で持つスマホでは、親指が自然に届く下部が操作しやすい位置です。'},
+    {q:'サービスの料金プランを選ぶ画面を作ります。現在は8つのプランが同じ強さで並んでいます。どう改善するのが適切ですか。',
+     opts:['3つ前後に絞り、おすすめを1つ示す','全プランの機能を一覧にして、すべて見せる','プランの名前をすべて英語にして、洗練された印象にする','プランごとに別の色をつけて、違いを強調する'],ans:0,
+     why:'選択肢が増えるほど、決めるまでの時間と迷いが増えます（ヒックの法則）。数を絞り、おすすめを示すと、判断の負担が小さくなります。'},
+    {q:'「送信」ボタンを押してから完了まで3秒かかります。その間の表示として最も適切なものはどれですか。',
+     opts:['何も変えず、完了画面が出るまで待たせる','画面を白くして、完了したら元に戻す','ボタンを押せない状態にして、「送信中…」と表示する','「しばらくお待ちください」というダイアログを出し、閉じるまで操作できなくする'],ans:2,
+     why:'処理中だと分かる表示がないと、利用者は押し直したり、壊れたと感じたりします。ボタンの無効化と進行中の表示で二重送信も防げます。'},
+    {q:'ステータス一覧で、「完了」を緑、「エラー」を赤の丸だけで表しています。色の見分けにくい人にも伝わるようにするには、どうしますか。',
+     opts:['赤と緑の色を、さらに鮮やかにする','丸の形やアイコン、「完了」「エラー」の文字も添える','色の説明を、ページの最下部に注釈として載せる','ステータスの種類を、色の濃淡だけで分ける'],ans:1,
+     why:'男性の約5%に赤と緑の区別がつきにくい特性があるといわれます。色に加えて形や文字でも伝えると、誰にでも同じ意味が届きます。'},
+    {q:'記事内に、規約ページへのリンクを置きます。リンクの文言として、最も適切なものはどれですか。',
+     opts:['こちら','詳しくはこちらをクリック','→','利用規約を読む'],ans:3,
+     why:'「こちら」だけでは、行き先が分かりません。スクリーンリーダーでリンクだけを読み上げる人にも、行き先が伝わる文言にします。'},
+    {q:'スマートフォン向けの本文の文字サイズを決めます。読みやすさの目安として、最低でも確保したいサイズはどれですか。',
+     opts:['16px前後','10px','12px','8px'],ans:0,
+     why:'スマホは目との距離が近くても、小さな文字は読み疲れます。本文は16px前後を基準にし、注釈でも12px未満は避けます。入力欄が16px未満だと、iOSでは拡大表示されます。'}
+  ]},
+compare:{
+  name:'比較編',
+  desc:'2つの画面案を見比べて、良い方を選び、その理由まで答えます。',
+  qs:[
+    {scn:'注文の最終確認ダイアログ。',
+     a:'<div class="scn">注文確認</div><p><b>注文を確定しますか？</b><br>合計 ¥4,280</p><div class="rowb"><div class="b plain">いいえ</div><div class="b plain">はい</div></div>',
+     b:'<div class="scn">注文確認</div><p><b>注文を確定しますか？</b><br>合計 ¥4,280</p><div class="rowb"><div class="b out">カートに戻る</div><div class="b">注文を確定する</div></div>',
+     good:'b',reasons:['色が多い方が、ユーザーの目を引くから','主操作を強調し、ボタンの文言で結果が分かるから','ボタンの数が同じなので、公平な選択肢だから'],r:1,
+     why:'Bは塗りと枠線で主従をつけ、「注文を確定する」と動詞で結果を示しています。Aは「はい／いいえ」が同じ見た目で、質問文を読み直さないと意味が分かりません。'},
+    {scn:'ログインフォーム。',
+     a:'<div class="scn">ログイン</div><div class="lb">メールアドレス</div><div class="in ph">例）taro@example.com</div><div class="lb">パスワード</div><div class="in ph">8文字以上</div><div class="b">ログイン</div>',
+     b:'<div class="scn">ログイン</div><div class="in ph">メールアドレス</div><div class="in ph">パスワード</div><div class="b">ログイン</div>',
+     good:'a',reasons:['画面がすっきり見えて、縦に短くなるから','入力を始めてもラベルが消えず、何の欄か確認できるから','プレースホルダーは薄い色なので、目に優しいから'],r:1,
+     why:'プレースホルダーは入力すると消えます。ラベルを常に表示すれば、入力中や見直しのときも欄の意味を確認できます。例文は補足として使います。'},
+    {scn:'ニュース記事のカード。',
+     a:'<div class="scn">記事</div><p style="font-size:12px;font-weight:700">新しい料金プランを発表しました</p><p style="font-size:12px;font-weight:700">2026年10月17日 広報部</p><p style="font-size:12px;font-weight:700">10月から月額の基本料金を見直し、利用量に応じて選べる3つのプランを提供します。</p>',
+     b:'<div class="scn">記事</div><p style="font-size:16px;font-weight:900;line-height:1.4">新しい料金プランを発表しました</p><p style="font-size:10px;color:#667">2026年10月17日 ・ 広報部</p><p style="font-size:12px">10月から月額の基本料金を見直し、利用量に応じて選べる3つのプランを提供します。</p>',
+     good:'b',reasons:['文字が小さい方が、情報量を多く見せられるから','サイズ・太さ・色に差があり、読む順番が分かるから','すべて太字にそろえると、統一感が出るから'],r:1,
+     why:'見出し、補足情報、本文でサイズと太さと色に差をつけると、視線の流れが決まります。Aは全部同じ見た目で、どこから読めばよいか分かりません。'},
+    {scn:'メールアドレスの入力ミス。',
+     a:'<div class="scn">会員登録</div><div class="lb">メールアドレス</div><div class="in err">taro.example.com</div><div class="msg">'+warn+'「@」が含まれていません</div><div class="b">登録する</div>',
+     b:'<div class="scn">会員登録</div><div class="banner">入力内容に誤りがあります</div><div class="lb">メールアドレス</div><div class="in">taro.example.com</div><div class="b">登録する</div>',
+     good:'a',reasons:['どの欄が、なぜ誤りなのかをその場で伝えているから','赤い色が使われていて、注意を引けるから','メッセージが短く、画面を占める面積が小さいから'],r:0,
+     why:'Aは問題の場所の近くに、原因と直し方を示しています。Bは上部の一般的な文言だけで、利用者が欄を探して原因を推測しなければなりません。'},
+    {scn:'モバイルアプリの下部ナビゲーション。',
+     a:'<div class="scn">下部タブ</div><div style="height:46px;display:flex;align-items:center;color:#667">コンテンツ</div><div class="tabs"><div class="on">'+ic.home+'</div><div>'+ic.search+'</div><div>'+ic.bell+'</div><div>'+ic.user+'</div></div>',
+     b:'<div class="scn">下部タブ</div><div style="height:46px;display:flex;align-items:center;color:#667">コンテンツ</div><div class="tabs"><div class="on">'+ic.home+'ホーム</div><div>'+ic.search+'さがす</div><div>'+ic.bell+'お知らせ</div><div>'+ic.user+'マイページ</div></div>',
+     good:'b',reasons:['アイコンの意味は人によって解釈が分かれるため、ラベルで補うべきだから','文字があると画面が賑やかになり、印象が良くなるから','アイコンの種類が少なくても済むから'],r:0,
+     why:'アイコンだけの表示は、意味が伝わらない人が出ます。ラベルを添えると迷いが減り、押す前に行き先が分かります。'},
+    {scn:'商品の説明文（背景は白）。',
+     a:'<div class="scn">商品詳細</div><p style="font-size:14px;font-weight:700">防水トートバッグ</p><p style="font-size:13px;color:#333">500mlのペットボトルが2本入る容量です。雨の日の通勤に向いた防水素材を使っています。</p>',
+     b:'<div class="scn">商品詳細</div><p style="font-size:14px;font-weight:700;color:#bbb">防水トートバッグ</p><p style="font-size:11px;color:#b5b5b5">500mlのペットボトルが2本入る容量です。雨の日の通勤に向いた防水素材を使っています。</p>',
+     good:'a',reasons:['背景との明暗差が十分で、小さな文字でも読み取れるから','濃い色の方が、ブランドらしく見えるから','文字が大きい方が、自然に見えるから'],r:0,
+     why:'Bは薄いグレーの小さな文字で、コントラスト比が約2:1です。WCAGの基準4.5:1を下回り、屋外や低視力の人には読めません。おしゃれさより、読めることを優先します。'},
+    {scn:'設定画面の下部。「保存」と「アカウント削除」を置きます。',
+     a:'<div class="scn">設定</div><div class="b">変更を保存する</div><div style="height:18px"></div><div style="text-align:center;color:#c62828;font-size:11px;text-decoration:underline">アカウントを削除する</div>',
+     b:'<div class="scn">設定</div><div class="rowb"><div class="b">保存</div><div class="b" style="background:#c62828">削除</div></div>',
+     good:'a',reasons:['押すと戻せない操作を、主要な操作から離して控えめに置いているから','ボタンが横に並ぶと、画面が狭く見えるから','削除が赤くて目立つので、見つけやすいから'],r:0,
+     why:'取り消せない操作は、よく押す操作の隣に置かないようにします。Bは同じ大きさで隣り合っているため、押し間違いが起きやすくなります。距離と強弱をつけて、確認の手順も加えます。'},
+    {scn:'タスクを1件も登録していないときの画面。',
+     a:'<div class="scn">タスク</div><p style="color:#667;text-align:center;padding:14px 0">データがありません</p>',
+     b:'<div class="scn">タスク</div><div style="text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;padding:6px 0"><p><b>まだタスクがありません</b></p><p style="color:#667">最初のタスクを追加して、今日の予定を整理しましょう。</p><div class="b" style="padding:6px 14px">タスクを追加</div></div>',
+     good:'b',reasons:['文字が多いほど、丁寧な印象になるから','今の状態を伝えるだけでなく、次にすべき行動まで示しているから','ボタンがあると、画面のバランスが取れるから'],r:1,
+     why:'空の状態は、使い方を伝える機会です。Bは理由と次の一歩を示しています。Aは「何も起きていない」だけを伝え、利用者は何をすればよいか分かりません。'},
+    {scn:'フォームを送信した直後の画面。',
+     a:'<div class="scn">お問い合わせ</div><div class="in">ご相談の内容…</div><div class="b" style="background:#2a6df4">送信する</div>',
+     b:'<div class="scn">お問い合わせ</div><div class="in" style="background:#f3f4f6;color:#667">ご相談の内容…</div><div class="b" style="background:#9db8f5">送信中…</div><div style="height:4px;background:#e3e5e8;border-radius:2px"><div style="width:60%;height:4px;background:#2a6df4;border-radius:2px"></div></div>',
+     good:'b',reasons:['装飾が増えて、画面が華やかになるから','処理が進んでいることが分かり、押し直しも防げるから','進捗バーがあれば、必ず速く感じるから'],r:1,
+     why:'Bは操作が受け付けられたことを、ボタンの文言と状態、バーで伝えています。反応が見えないAでは、不安になって何度も押す人が出ます。'},
+    {scn:'4段階の購入手続き。2ステップ目の画面。',
+     a:'<div class="scn">購入手続き</div><div style="display:flex;gap:4px"><i style="flex:1;height:4px;background:#2a6df4"></i><i style="flex:1;height:4px;background:#2a6df4"></i><i style="flex:1;height:4px;background:#e3e5e8"></i><i style="flex:1;height:4px;background:#e3e5e8"></i></div><p style="font-size:11px;color:#667">ステップ 2 / 4</p><p><b>お届け先を入力</b></p><div class="in ph">郵便番号</div>',
+     b:'<div class="scn">購入手続き</div><p><b>お届け先を入力</b></p><div class="in ph">郵便番号</div><div class="in ph">住所</div><div class="in ph">お名前</div>',
+     good:'a',reasons:['現在地と残りの工程が分かり、見通しを持って進められるから','装飾が多いほど、サービスが信頼できて見えるから','進捗を見せると、必ず離脱が減るから'],r:0,
+     why:'手続きが何段階あり、どこまで進んだかが分かると、利用者は残りの負担を見積もれます。Bはゴールが見えず、途中でやめる人が増えやすくなります。'},
+    {scn:'文章の途中に、規約ページへのリンクを置きます。',
+     a:'<div class="scn">会員登録</div><p>登録には<span style="color:#2a6df4;text-decoration:underline">利用規約</span>への同意が必要です。内容をご確認ください。</p>',
+     b:'<div class="scn">会員登録</div><p>登録には<span style="font-weight:700">利用規約</span>への同意が必要です。内容をご確認ください。</p>',
+     good:'a',reasons:['色と下線で、クリックできる要素だと分かるから','太字の方が、強調されて読み飛ばされないから','下線があると、文章が読みやすくなるから'],r:0,
+     why:'リンクは、色や下線などで他の文字と区別します。Bは太字なだけで、押せるかどうか分かりません。色だけに頼らず、下線も添えると色覚の違いにも対応できます。'},
+    {scn:'通知の設定画面。スイッチの状態を表示します。',
+     a:'<div class="scn">通知設定</div><div style="display:flex;justify-content:space-between;align-items:center"><span>メール通知</span><span style="width:36px;height:20px;border-radius:10px;background:#d8dbe0;position:relative;display:inline-block"><i style="position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff"></i></span></div><div style="display:flex;justify-content:space-between;align-items:center"><span>プッシュ通知</span><span style="width:36px;height:20px;border-radius:10px;background:#cfd9ee;position:relative;display:inline-block"><i style="position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff"></i></span></div>',
+     b:'<div class="scn">通知設定</div><div style="display:flex;justify-content:space-between;align-items:center"><span>メール通知</span><span style="display:flex;gap:6px;align-items:center"><span style="color:#667;font-size:11px">オフ</span><span style="width:36px;height:20px;border-radius:10px;background:#8a93a0;position:relative;display:inline-block"><i style="position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff"></i></span></span></div><div style="display:flex;justify-content:space-between;align-items:center"><span>プッシュ通知</span><span style="display:flex;gap:6px;align-items:center"><span style="color:#2a6df4;font-size:11px;font-weight:700">オン</span><span style="width:36px;height:20px;border-radius:10px;background:#2a6df4;position:relative;display:inline-block"><i style="position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff"></i></span></span></div>',
+     good:'b',reasons:['スイッチが大きく見えて、押しやすいから','色の差が小さくても、文字で現在の状態を確認できるから','文字が増えると、設定項目が多く見えるから'],r:1,
+     why:'Aはオンとオフの色の差が小さく、どちらが有効なのか読み取れません。Bは濃淡の差に加えて「オン／オフ」の文字を添え、状態を確実に伝えています。'}
+  ]}
+};
+
+const app=document.getElementById('app');
+let S=null;
+
+function bestGet(k){try{return localStorage.getItem('uxdrill2-'+k)}catch(e){return null}}
+function bestSet(k,v){try{const o=parseInt(localStorage.getItem('uxdrill2-'+k)||'-1',10);if(v>o)localStorage.setItem('uxdrill2-'+k,String(v))}catch(e){}}
+const maxOf=k=>SETS[k].qs.length*(k==='compare'?2:1);
+
+function home(){
+  S=null;
+  app.innerHTML=`
+  <header style="display:flex;flex-direction:column;gap:12px">
+    <span class="label">UI/UX Practice Drill</span>
+    <h1>UI/UX実践ドリル</h1>
+    <p class="lead">学んだ原則を、実際のデザインの判断に使う練習です。画面を見て決めて、理由まで考えます。</p>
+  </header>
+  <div class="home-grid">
+    ${Object.entries(SETS).map(([k,s])=>{const b=bestGet(k);return `
+    <div class="set">
+      <span class="count">${k==='basic'?s.qs.length+'問 / 選択式':s.qs.length+'問 / A・B比較 + 理由（各2点）'}</span>
+      <h2>${s.name}</h2>
+      <p>${s.desc}</p>
+      <div class="best">${b!==null?'最高スコア '+b+' / '+maxOf(k):''}</div>
+      <button class="btn" data-start="${k}">はじめる</button>
+    </div>`}).join('')}
+  </div>`;
+  app.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>start(b.dataset.start));
+}
+
+function start(k){S={k,i:0,score:0,log:[]};show()}
+
+function bar(){
+  const n=SETS[S.k].qs.length;
+  return `<div class="bar"><span class="label">${SETS[S.k].name} ${S.i+1} / ${n}</span>
+    <div class="dots" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${j<S.i?'done':j===S.i?'now':''}"></i>`).join('')}</div>
+    <button class="quit" id="quit">やめる</button></div>`;
+}
+
+function show(){
+  const set=SETS[S.k];
+  if(S.i>=set.qs.length)return result();
+  const q=set.qs[S.i];
+  if(S.k==='basic')showMC(q);else showAB(q);
+  document.getElementById('quit').onclick=home;
+  window.scrollTo(0,0);
+}
+
+function nextBtn(){return `<button class="btn" id="next">${S.i+1>=SETS[S.k].qs.length?'結果を見る':'次の問題へ'}</button>`}
+function bindNext(){document.getElementById('next').onclick=()=>{S.i++;show()}}
+
+function showMC(q){
+  const K=['A','B','C','D'];
+  app.innerHTML=bar()+`<div class="card"><h2>${q.q}</h2>
+    <div class="opts">${q.opts.map((o,j)=>`<button class="opt" data-j="${j}"><span class="k">${K[j]}</span><span>${o}</span></button>`).join('')}</div>
+    <div id="fb"></div></div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const j=+b.dataset.j,ok=j===q.ans;
+    app.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.j===q.ans)x.classList.add('right')});
+    if(!ok)b.classList.add('wrong');
+    if(ok)S.score++;
+    S.log.push({t:q.q,pt:ok?1:0,max:1});
+    document.getElementById('fb').innerHTML=`<div class="fb ${ok?'ok':'ng'}"><strong>${ok?'正解':'不正解'}</strong><p>${q.why}</p></div><div style="margin-top:16px">${nextBtn()}</div>`;
+    bindNext();
+  });
+}
+
+function showAB(q){
+  const side={a:q.good==='a'?q.a:q.b,b:q.good==='a'?q.b:q.a};
+  // 正解の位置は問題ごとに入れ替える。good は「良い案」が置かれた側
+  const left=q.a,right=q.b;
+  app.innerHTML=bar()+`<div class="card">
+    <div><span class="label">場面</span><h2>${q.scn}より良いのはどちらですか。</h2></div>
+    <div class="ab">
+      <button class="panel" data-s="a"><span class="tag">案 A</span><div class="mock">${left}</div></button>
+      <button class="panel" data-s="b"><span class="tag">案 B</span><div class="mock">${right}</div></button>
+    </div>
+    <div id="step2"></div><div id="fb"></div></div>`;
+  let picked=null;
+  const panels=app.querySelectorAll('.panel');
+  panels.forEach(p=>p.onclick=()=>{
+    if(picked)return;
+    picked=p.dataset.s;
+    panels.forEach(x=>{x.disabled=true});
+    p.classList.add('sel');
+    const K=['ア','イ','ウ'];
+    document.getElementById('step2').innerHTML=`<div class="step"><h3 style="font-size:16px">そう考える理由として、もっとも適切なものを選んでください。</h3>
+      <div class="opts" id="rs">${q.reasons.map((r,j)=>`<button class="opt" data-j="${j}"><span class="k">${K[j]}</span><span>${r}</span></button>`).join('')}</div></div>`;
+    document.querySelectorAll('#rs .opt').forEach(b=>b.onclick=()=>finish(q,picked,+b.dataset.j,panels));
+  });
+}
+
+function finish(q,picked,rj,panels){
+  const okPick=picked===q.good,okReason=rj===q.r;
+  panels.forEach(p=>{p.classList.remove('sel');if(p.dataset.s===q.good)p.classList.add('right');else if(p.dataset.s===picked)p.classList.add('wrong')});
+  document.querySelectorAll('#rs .opt').forEach(x=>{x.disabled=true;if(+x.dataset.j===q.r)x.classList.add('right');else if(+x.dataset.j===rj)x.classList.add('wrong')});
+  const pt=(okPick?1:0)+(okReason?1:0);
+  S.score+=pt;S.log.push({t:q.scn,pt,max:2});
+  const head=okPick&&okReason?'正解':okPick?'選択は正解、理由が違います':okReason?'理由は合っていますが、選んだ案が逆です':'不正解';
+  document.getElementById('fb').innerHTML=`<div class="fb ${pt===2?'ok':'ng'}"><strong>${head}（${pt} / 2点）</strong><p>良い案は <b>案 ${q.good.toUpperCase()}</b> です。${q.why}</p></div><div style="margin-top:16px">${nextBtn()}</div>`;
+  bindNext();
+}
+
+function result(){
+  const m=maxOf(S.k),r=S.score/m;
+  bestSet(S.k,S.score);
+  const msg=r===1?'満点です。判断の根拠まで身についています。':r>=.7?'よくできています。間違えた問題の解説を読み返してみてください。':'まだ伸びしろがあります。解説を読んでから、もう一度挑戦してみましょう。';
+  app.innerHTML=`<div class="card">
+    <span class="label">${SETS[S.k].name} 結果</span>
+    <div class="score"><b>${S.score}</b><span>/ ${m} 点</span></div>
+    <p>${msg}</p>
+    <ul class="review">${S.log.map((l,j)=>`<li><span class="pt">${l.pt}/${l.max}</span><span>${j+1}. ${l.t.length>46?l.t.slice(0,46)+'…':l.t}</span></li>`).join('')}</ul>
+    <div class="row"><button class="btn" id="again">もう一度</button><button class="btn ghost" id="home">トップへ</button></div>
+  </div>`;
+  document.getElementById('again').onclick=()=>start(S.k);
+  document.getElementById('home').onclick=home;
+  window.scrollTo(0,0);
+}
+home();
+</script>
+</html>
