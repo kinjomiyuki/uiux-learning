@@ -6,439 +6,518 @@
 <title>設計思考ラボ — UI/UX学習アプリ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#FFFFFF;
-    --paper-2:#F8F8F8;
-    --line:#E4E4E4;
-    --line-soft:#F1F1F1;
-    --ink:#111111;
-    --ink-soft:#6B6B6B;
-    --ink-faint:#9C9C9C;
-    --accent:#111111;
-    --accent-soft:#F8F8F8;
-    --serif:'Fraunces', serif;
-    --sans:'IBM Plex Sans JP','IBM Plex Sans',sans-serif;
-    --mono:'IBM Plex Mono', monospace;
-    --radius:2px;
+    --bg-1:#E9E2DA;
+    --bg-2:#D9D5E6;
+    --ink:#23223A;
+    --ink-soft:#5E5C78;
+    --ink-faint:#8D8BA5;
+    --violet:#7C5CF0;
+    --violet-2:#9B7FFF;
+    --teal:#4FD1BC;
+    --teal-2:#7BE3D2;
+    --rose:#F6A8C8;
+    --peach:#FFC9A8;
+    --glass:rgba(255,255,255,.42);
+    --glass-strong:rgba(255,255,255,.68);
+    --glass-line:rgba(255,255,255,.75);
+    --shadow:0 18px 40px -16px rgba(60,50,110,.28), 0 4px 12px -4px rgba(60,50,110,.12);
+    --shadow-sm:0 8px 18px -8px rgba(60,50,110,.25);
+    --sans:'Plus Jakarta Sans','Noto Sans JP',sans-serif;
+    --jp:'Noto Sans JP','Plus Jakarta Sans',sans-serif;
+    --r-lg:32px; --r-md:22px; --r-pill:999px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background-color:var(--paper);
-    background-image:
-      repeating-linear-gradient(0deg, var(--line-soft) 0, var(--line-soft) 1px, transparent 1px, transparent 28px),
-      repeating-linear-gradient(90deg, var(--line-soft) 0, var(--line-soft) 1px, transparent 1px, transparent 28px);
-    background-position:center top;
+    font-family:var(--jp);
+    font-size:16px; line-height:1.75;
     color:var(--ink);
-    font-family:var(--sans);
-    font-size:16px;
-    line-height:1.6;
+    min-height:100vh;
     -webkit-font-smoothing:antialiased;
-    min-height:100vh;
+    background:
+      linear-gradient(115deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 38%),
+      linear-gradient(160deg, var(--bg-1) 0%, #E4DBE3 45%, var(--bg-2) 100%);
+    background-attachment:fixed;
+    overflow-x:hidden;
   }
-  ::selection{background:var(--accent-soft);}
-  button{font-family:inherit;}
-  .app{
-    max-width:640px;
-    margin:0 auto;
-    min-height:100vh;
-    background:var(--paper);
-    position:relative;
-    padding:0 20px;
-    border-left:1px solid var(--line);
-    border-right:1px solid var(--line);
+  /* 窓から差し込む光と影 */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(40vw 40vw at 88% 6%, rgba(90,100,140,.28), transparent 70%),
+      radial-gradient(34vw 34vw at 8% 92%, rgba(124,92,240,.18), transparent 70%),
+      radial-gradient(30vw 30vw at 95% 85%, rgba(79,209,188,.22), transparent 70%),
+      radial-gradient(26vw 26vw at 4% 8%, rgba(255,201,168,.40), transparent 70%);
   }
-  .corner{
-    position:absolute;
-    width:14px;height:14px;
-    pointer-events:none;
-  }
-  .corner::before,.corner::after{content:"";position:absolute;background:var(--ink-faint);}
-  .corner::before{width:100%;height:1px;top:50%;}
-  .corner::after{height:100%;width:1px;left:50%;}
-  .corner-tl{top:10px;left:2px;}
-  .corner-tr{top:10px;right:2px;}
-  .corner-bl{bottom:10px;left:2px;}
-  .corner-br{bottom:10px;right:2px;}
+  .orb{position:fixed; border-radius:50%; filter:blur(50px); opacity:.55; pointer-events:none; z-index:0; animation:float 14s ease-in-out infinite;}
+  .orb.o1{width:260px;height:260px;background:var(--violet-2);top:18%;left:-80px;}
+  .orb.o2{width:220px;height:220px;background:var(--teal-2);bottom:8%;right:-60px;animation-delay:-5s;}
+  .orb.o3{width:180px;height:180px;background:var(--rose);top:55%;left:55%;animation-delay:-9s;opacity:.35;}
+  @keyframes float{0%,100%{transform:translate(0,0);}50%{transform:translate(20px,-24px);}}
 
-  .app-header{position:relative;padding:32px 0 0;}
-  .brand{display:flex;align-items:baseline;gap:10px;padding:0 4px;}
-  .brand-mark{
-    font-family:var(--mono);
-    font-size:11px;
-    letter-spacing:.06em;
-    color:var(--accent);
-    border:1px solid var(--accent);
-    padding:2px 6px;
-    border-radius:var(--radius);
+  ::selection{background:rgba(124,92,240,.25);}
+  button{font-family:inherit;}
+
+  .app{
+    position:relative; z-index:1;
+    max-width:720px; margin:28px auto;
+    padding:32px 36px 36px;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(26px) saturate(150%);
+    backdrop-filter:blur(26px) saturate(150%);
+    border:1px solid var(--glass-line);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(255,255,255,.3);
+    min-height:calc(100vh - 56px);
   }
+
+  .app-header{padding:0;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-icon{
+    width:48px; height:48px; flex:none; border-radius:16px;
+    display:grid; place-items:center; color:#fff;
+    background:linear-gradient(140deg,var(--teal) 0%,var(--violet) 100%);
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .brand-icon svg{width:26px;height:26px;}
   .app-header h1{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:26px;
-    margin:0;
-    letter-spacing:-0.01em;
+    font-family:var(--jp); font-weight:700; font-size:24px; margin:0; letter-spacing:.01em;
   }
-  .tagline{
-    font-size:13.5px;
-    color:var(--ink-soft);
-    margin:8px 4px 22px;
-    max-width:46ch;
-  }
+  .brand-sub{font-family:var(--sans); font-size:12px; color:var(--ink-faint); letter-spacing:.08em; font-weight:600;}
+  .tagline{font-size:14px; color:var(--ink-soft); margin:18px 2px 24px; max-width:48ch;}
+
+  /* セグメントタブ */
   .tabs{
-    display:flex;
-    gap:22px;
-    padding:0 4px;
-    border-bottom:1px solid var(--line);
+    display:flex; gap:4px; padding:5px;
+    background:rgba(255,255,255,.35);
+    border:1px solid var(--glass-line);
+    border-radius:var(--r-pill);
+    box-shadow:inset 0 2px 6px rgba(60,50,110,.08);
   }
   .tab{
-    background:none;border:none;
-    padding:10px 0 12px;
-    font-size:14.5px;
-    color:var(--ink-faint);
-    cursor:pointer;
-    position:relative;
-    font-weight:500;
-    transition:color .15s ease;
+    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:none; border:none; cursor:pointer;
+    padding:12px 10px; border-radius:var(--r-pill);
+    font-size:14px; font-weight:600; color:var(--ink-soft);
+    transition:all .25s ease;
   }
+  .tab svg{width:18px;height:18px;flex:none;}
   .tab:hover{color:var(--ink);}
-  .tab.active{color:var(--ink);}
-  .tab.active::after{
-    content:"";
-    position:absolute;left:0;right:0;bottom:-1px;
-    height:2px;background:var(--accent);
+  .tab.active{
+    color:var(--ink);
+    background:var(--glass-strong);
+    box-shadow:var(--shadow-sm), inset 0 1px 0 #fff;
   }
-  .tab:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
-    outline:2px solid var(--accent); outline-offset:2px;
-  }
+  .tab.active svg{color:var(--violet);}
+  button:focus-visible, textarea:focus-visible{outline:3px solid rgba(124,92,240,.45); outline-offset:2px;}
 
-  main{padding:26px 4px 60px; min-height:50vh;}
+  main{padding:32px 0 8px; min-height:50vh;}
 
-  .app-footer{position:relative; height:40px;}
-
-  /* --- shared bits --- */
+  /* --- shared --- */
   .eyebrow{
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--ink-faint);
-    letter-spacing:.04em;
-    margin-bottom:6px;
-  }
-  .panel-title{
-    font-family:var(--serif);
-    font-size:20px;
-    font-weight:600;
-    margin:0 0 10px;
-    line-height:1.4;
-  }
-  .lede{color:var(--ink-soft); font-size:14.5px; margin:0 0 20px;}
-  .btn{
     display:inline-flex; align-items:center; gap:8px;
-    background:var(--ink);
-    color:var(--paper);
-    border:none;
-    padding:12px 20px;
-    font-size:14.5px;
-    font-weight:500;
-    border-radius:var(--radius);
-    cursor:pointer;
-    transition:transform .1s ease, background .15s ease;
-  }
-  .btn:hover{background:#000;}
-  .btn:active{transform:scale(.98);}
-  .btn.secondary{
-    background:none; color:var(--ink); border:1px solid var(--ink);
-  }
-  .btn.secondary:hover{background:var(--ink); color:var(--paper);}
-  .btn:disabled{opacity:.4; cursor:not-allowed;}
-
-  /* --- quiz --- */
-  .quiz-meta{
-    display:flex; justify-content:space-between; align-items:center;
-    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+    font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:.1em;
+    color:var(--violet);
+    background:rgba(124,92,240,.1);
+    padding:6px 12px; border-radius:var(--r-pill);
     margin-bottom:14px;
   }
-  .quiz-progress{display:flex; gap:4px;}
-  .quiz-progress span{width:14px; height:3px; background:var(--line); display:block;}
-  .quiz-progress span.done{background:var(--ink);}
-  .quiz-progress span.now{background:#fff; border:1px solid var(--ink);}
+  .panel-title{font-size:22px; font-weight:700; margin:0 0 12px; line-height:1.5;}
+  .lede{color:var(--ink-soft); font-size:14.5px; margin:0 0 28px;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:1px solid rgba(255,255,255,.5); cursor:pointer;
+    padding:14px 28px; border-radius:var(--r-pill);
+    font-size:14.5px; font-weight:600; color:#fff;
+    background:linear-gradient(135deg,var(--violet-2),var(--violet));
+    box-shadow:0 12px 22px -10px rgba(124,92,240,.7), inset 0 1px 0 rgba(255,255,255,.55);
+    transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .btn:hover{transform:translateY(-2px); box-shadow:0 16px 26px -10px rgba(124,92,240,.75), inset 0 1px 0 rgba(255,255,255,.6);}
+  .btn:active{transform:scale(.97);}
+  .btn.secondary{
+    color:#145C52;
+    background:linear-gradient(135deg,rgba(123,227,210,.85),rgba(79,209,188,.7));
+    box-shadow:0 12px 22px -12px rgba(40,150,130,.6), inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+
+  /* --- quiz --- */
+  .quiz-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+  .quiz-count{
+    font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink-soft);
+    background:var(--glass-strong); padding:6px 14px; border-radius:var(--r-pill); box-shadow:var(--shadow-sm);
+  }
+  .quiz-progress{flex:1; max-width:220px; height:8px; border-radius:var(--r-pill); background:rgba(255,255,255,.55); overflow:hidden; box-shadow:inset 0 1px 3px rgba(60,50,110,.12);}
+  .quiz-progress i{display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--teal),var(--violet)); transition:width .4s ease;}
   .quiz-card{
-    border-top:1px solid var(--line);
-    padding-top:18px;
+    background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:var(--r-lg); padding:28px 26px 26px;
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.8);
   }
-  .quiz-q{font-family:var(--serif); font-size:19px; font-weight:600; margin:0 0 20px; line-height:1.5;}
+  .quiz-q{font-size:18px; font-weight:700; margin:0 0 24px; line-height:1.7;}
   .choice{
-    display:flex; align-items:flex-start; gap:12px;
-    width:100%; text-align:left;
-    background:none; border:1px solid var(--line);
-    padding:13px 14px; margin-bottom:9px;
-    border-radius:var(--radius);
-    font-size:14.5px; color:var(--ink);
-    cursor:pointer;
-    transition:border-color .12s ease, background .12s ease;
+    display:flex; align-items:center; gap:14px;
+    width:100%; text-align:left; cursor:pointer;
+    background:rgba(255,255,255,.7);
+    border:1px solid rgba(255,255,255,.9);
+    padding:14px 18px; margin-bottom:12px;
+    border-radius:var(--r-md);
+    font-size:14.5px; color:var(--ink); line-height:1.6;
+    box-shadow:0 6px 14px -8px rgba(60,50,110,.22);
+    transition:transform .15s ease, box-shadow .2s ease, background .2s ease;
   }
-  .choice:hover:not(:disabled){border-color:var(--ink);}
+  .choice:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 12px 20px -10px rgba(124,92,240,.35); background:#fff;}
   .choice .mark{
-    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
-    border:1px solid var(--line-soft); border-radius:50%;
-    width:20px; height:20px; flex:none;
+    font-family:var(--sans); font-size:13px; font-weight:700; color:var(--violet);
+    background:rgba(124,92,240,.12);
+    width:32px; height:32px; flex:none; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
   }
-  .choice.correct{border-color:var(--ink); border-width:2px; background:#fff;}
-  .choice.correct .mark{border-color:var(--ink); color:var(--ink); background:#fff;}
-  .choice.wrong{border-color:var(--ink); background:var(--ink); color:#fff;}
-  .choice.wrong .mark{border-color:#fff; color:#fff; background:var(--ink);}
+  .choice.correct{
+    background:linear-gradient(135deg,rgba(123,227,210,.75),rgba(79,209,188,.55));
+    border-color:rgba(255,255,255,.9); box-shadow:0 12px 22px -12px rgba(40,150,130,.6);
+  }
+  .choice.correct .mark{background:#fff; color:#12806F;}
+  .choice.wrong{background:linear-gradient(135deg,rgba(246,168,200,.8),rgba(255,201,168,.7));}
+  .choice.wrong .mark{background:#fff; color:#C0426E;}
   .choice:disabled{cursor:default;}
   .explain{
-    margin-top:16px; padding:14px 16px;
-    background:var(--paper-2);
-    border-left:3px solid var(--accent);
-    font-size:14px; color:var(--ink);
-    border-radius:0 var(--radius) var(--radius) 0;
+    margin-top:22px; padding:20px 22px;
+    background:linear-gradient(135deg,rgba(255,201,168,.55),rgba(246,168,200,.45) 40%,rgba(155,127,255,.4) 100%);
+    border:1px solid rgba(255,255,255,.85);
+    border-radius:var(--r-md);
+    font-size:14px; line-height:1.8;
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.8);
   }
-  .explain b{font-family:var(--mono); font-size:11px; letter-spacing:.03em; display:block; margin-bottom:6px; color:var(--accent);}
-  .quiz-footer{display:flex; justify-content:flex-end; margin-top:20px;}
-  .quiz-done{text-align:center; padding:30px 10px;}
-  .quiz-done .score{font-family:var(--serif); font-size:44px; font-weight:600; margin:14px 0;}
+  .explain b{font-family:var(--sans); font-size:12px; letter-spacing:.08em; display:block; margin-bottom:6px; color:var(--violet);}
+  .quiz-footer{display:flex; justify-content:flex-end; margin-top:24px;}
+  .quiz-done{text-align:center; padding:36px 10px;}
+  .quiz-done .score{font-family:var(--sans); font-size:56px; font-weight:800; margin:16px 0; background:linear-gradient(135deg,var(--teal),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent;}
 
-  /* --- socratic / practice (chat) --- */
-  .topic-grid{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;}
-  .chip{
-    border:1px solid var(--line); background:#fff;
-    padding:9px 13px; font-size:13.5px; border-radius:var(--radius);
-    cursor:pointer; color:var(--ink); text-align:left;
-    transition:border-color .12s ease;
+  /* --- socratic / practice --- */
+  .topic-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  .chip, .scenario-card{
+    display:flex; align-items:center; gap:14px; text-align:left; cursor:pointer;
+    background:var(--glass-strong);
+    border:1px solid rgba(255,255,255,.9);
+    border-radius:var(--r-md);
+    padding:18px; color:var(--ink); font-size:14px; font-weight:600;
+    box-shadow:var(--shadow-sm), inset 0 1px 0 #fff;
+    transition:transform .15s ease, box-shadow .2s ease;
   }
-  .chip:hover{border-color:var(--ink);}
-  .scenario-card{
-    border:1px solid var(--line); background:#fff; border-radius:var(--radius);
-    padding:14px 15px; margin-bottom:9px; cursor:pointer;
+  .chip:hover, .scenario-card:hover{transform:translateY(-3px); box-shadow:0 16px 26px -12px rgba(124,92,240,.4), inset 0 1px 0 #fff;}
+  .ic{
+    width:44px; height:44px; flex:none; border-radius:15px; display:grid; place-items:center; color:#fff;
+    background:linear-gradient(140deg,var(--violet-2),var(--violet));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
   }
-  .scenario-card:hover{border-color:var(--ink);}
-  .scenario-card h3{margin:0 0 4px; font-size:14.5px; font-family:var(--serif); font-weight:600;}
-  .scenario-card p{margin:0; font-size:13px; color:var(--ink-soft);}
+  .ic svg{width:22px;height:22px;}
+  .ic.t{background:linear-gradient(140deg,var(--teal-2),var(--teal)); color:#0E5A4E;}
+  .ic.r{background:linear-gradient(140deg,var(--peach),var(--rose)); color:#8C2E55;}
+  .chip .done{margin-left:auto; color:#12A58C; font-family:var(--sans); font-size:12px; font-weight:700;}
+  .scenario-list{display:flex; flex-direction:column; gap:14px;}
+  .scenario-card{align-items:flex-start;}
+  .scenario-card h3{margin:0 0 4px; font-size:15px; font-weight:700;}
+  .scenario-card p{margin:0; font-size:13px; font-weight:400; color:var(--ink-soft); line-height:1.65;}
 
-  .chat-thread{display:flex; flex-direction:column; gap:14px; margin-bottom:16px;}
-  .msg{max-width:88%; animation:rise .18s ease;}
-  @keyframes rise{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  .chat-thread{display:flex; flex-direction:column; gap:20px; margin-bottom:24px;}
+  .msg{max-width:86%; animation:rise .25s ease;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
   .msg.mentor{align-self:flex-start;}
   .msg.user{align-self:flex-end;}
-  .msg .who{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); margin-bottom:4px; letter-spacing:.03em;}
+  .msg .who{font-family:var(--sans); font-size:11px; font-weight:700; color:var(--ink-faint); margin:0 12px 6px; letter-spacing:.06em;}
   .msg.user .who{text-align:right;}
-  .msg .bubble{padding:11px 14px; font-size:14.5px; border-radius:var(--radius); line-height:1.65;}
-  .msg.mentor .bubble{background:#fff; border:1px solid var(--line);}
-  .msg.user .bubble{background:var(--ink); color:var(--paper);}
-  .msg.mentor.summary .bubble{background:var(--accent-soft); border:1px solid var(--accent); white-space:pre-line;}
-  .msg.mentor .bubble.error{background:#fff; border:1px dashed var(--ink); color:var(--ink);}
-  .typing{display:inline-flex; gap:4px; padding:4px 0;}
-  .typing span{width:5px; height:5px; border-radius:50%; background:var(--ink-faint); animation:blink 1.1s infinite ease-in-out;}
+  .msg .bubble{padding:15px 20px; font-size:14.5px; line-height:1.8; border-radius:24px;}
+  .msg.mentor .bubble{
+    background:var(--glass-strong); border:1px solid rgba(255,255,255,.9);
+    border-top-left-radius:8px; box-shadow:var(--shadow-sm), inset 0 1px 0 #fff;
+  }
+  .msg.user .bubble{
+    color:#fff; border-top-right-radius:8px;
+    background:linear-gradient(135deg,var(--violet-2),var(--violet));
+    box-shadow:0 12px 22px -10px rgba(124,92,240,.6), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .msg.mentor.summary .bubble{
+    background:linear-gradient(135deg,rgba(255,201,168,.6),rgba(246,168,200,.5) 45%,rgba(155,127,255,.45));
+    white-space:pre-line;
+  }
+  .msg.mentor .bubble.error{background:rgba(246,168,200,.45);}
+  .typing{display:inline-flex; gap:5px; padding:6px 0;}
+  .typing span{width:7px; height:7px; border-radius:50%; background:var(--violet-2); animation:blink 1.1s infinite ease-in-out;}
   .typing span:nth-child(2){animation-delay:.15s;}
   .typing span:nth-child(3){animation-delay:.3s;}
   @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
 
-  .composer{display:flex; gap:8px; border-top:1px solid var(--line); padding-top:14px; position:sticky; bottom:0; background:var(--paper);}
+  .composer{
+    display:flex; gap:10px; align-items:flex-end; position:sticky; bottom:12px;
+    padding:8px 8px 8px 20px;
+    background:var(--glass-strong);
+    -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.95); border-radius:28px;
+    box-shadow:var(--shadow), inset 0 1px 0 #fff;
+  }
   .composer textarea{
-    flex:1; resize:none; border:1px solid var(--line); border-radius:var(--radius);
-    padding:10px 12px; font-family:inherit; font-size:14.5px; background:#fff; color:var(--ink);
+    flex:1; resize:none; border:none; background:transparent; outline:none;
+    padding:10px 0; font-family:inherit; font-size:14.5px; color:var(--ink);
     min-height:44px; max-height:120px;
   }
-  .composer .btn{align-self:flex-end;}
+  .composer textarea::placeholder{color:var(--ink-faint);}
+  .composer textarea:focus-visible{outline:none;}
+  .composer .btn{padding:12px 24px;}
   .back-link{
-    background:none; border:none; color:var(--ink-faint); font-size:13px;
-    cursor:pointer; padding:0 0 16px; display:inline-flex; align-items:center; gap:5px;
+    display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+    background:var(--glass-strong); border:1px solid rgba(255,255,255,.9);
+    color:var(--ink-soft); font-size:13px; font-weight:600;
+    padding:8px 16px 8px 12px; margin-bottom:22px; border-radius:var(--r-pill);
+    box-shadow:var(--shadow-sm);
   }
+  .back-link svg{width:16px;height:16px;}
   .back-link:hover{color:var(--ink);}
 
-  @media (max-width:480px){
-    .app{padding:0 14px;}
-    .app-header h1{font-size:22px;}
+  @media (max-width:560px){
+    .app{margin:0; border-radius:0; padding:22px 16px 28px; min-height:100vh;}
+    .app-header h1{font-size:20px;}
+    .tab{font-size:12.5px; padding:11px 4px; gap:5px;}
+    .tab svg{display:none;}
+    .topic-grid{grid-template-columns:1fr;}
     .msg{max-width:94%;}
-    .tabs{gap:14px; overflow-x:auto; scrollbar-width:none;}
-    .tab{white-space:nowrap; font-size:13.5px;}
+    .quiz-card{padding:22px 16px;}
   }
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
   }
-
-  /* --- basics（思い出す学び方） --- */
-  .tab .due{
-    display:inline-block; min-width:16px; height:16px; padding:0 4px; margin-left:4px;
-    font-family:var(--mono); font-size:10px; line-height:16px; text-align:center;
-    background:var(--ink); color:var(--paper); border-radius:8px; vertical-align:1px;
+  /* ===== GLASS v2: 厚みのあるガラス + 中性の背景 ===== */
+  :root{
+    --bg-1:#DDDAD5; --bg-2:#C9CBD0;
+    --glass-rim:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1.5px 0 rgba(255,255,255,.4), inset 1.5px 0 0 rgba(255,255,255,.55), inset -1.5px 0 0 rgba(255,255,255,.3), inset 0 0 22px rgba(255,255,255,.35);
+    --cast:0 22px 26px -14px rgba(35,35,55,.38), 0 6px 10px -4px rgba(35,35,55,.14);
+    --cast-sm:0 12px 14px -8px rgba(35,35,55,.34), 0 3px 5px -2px rgba(35,35,55,.12);
+    --pane:linear-gradient(145deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,.22) 45%, rgba(255,255,255,.12) 62%, rgba(255,255,255,.4) 100%);
   }
-  .block{border:1px solid var(--line); background:#fff; border-radius:var(--radius); padding:18px 18px; margin-bottom:16px;}
-  .block h3{font-family:var(--serif); font-size:16px; font-weight:600; margin:0 0 8px;}
-  .block p{margin:0 0 10px; font-size:14.5px;}
-  .block p:last-child{margin-bottom:0;}
-  .block ul,.block ol{margin:6px 0 0; padding-left:20px; font-size:14.5px; line-height:1.85;}
-  .block-ink{border-color:var(--ink);}
-  .note{font-size:12.5px; color:var(--ink-soft); margin-top:10px !important;}
-  .tag{
-    display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:.04em;
-    border:1px solid var(--ink); padding:1px 6px; margin-bottom:8px; border-radius:var(--radius);
+  body{
+    background:
+      linear-gradient(118deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 34%),
+      linear-gradient(160deg, #E3E0DB 0%, #D6D4D1 50%, #C7C9CE 100%);
+    background-attachment:fixed;
   }
-  .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:4px;}
-
-  .step-bar{list-style:none; display:flex; gap:4px; padding:0; margin:0 0 22px; counter-reset:step;}
-  .step-bar li{
-    flex:1; counter-increment:step; text-align:center;
-    font-size:11px; color:var(--ink-faint); padding-top:8px; border-top:2px solid var(--line);
+  body::before{
+    background:
+      linear-gradient(112deg, transparent 52%, rgba(70,78,100,.20) 52.4%, rgba(70,78,100,.20) 70%, transparent 70.6%),
+      linear-gradient(112deg, transparent 74%, rgba(70,78,100,.13) 74.4%, rgba(70,78,100,.13) 82%, transparent 82.6%),
+      radial-gradient(42vw 42vw at 92% 4%, rgba(70,78,100,.24), transparent 70%),
+      radial-gradient(30vw 30vw at 5% 95%, rgba(255,255,255,.55), transparent 70%);
   }
-  .step-bar li::before{content:counter(step) ". "; font-family:var(--mono);}
-  .step-bar li.done{color:var(--ink-soft); border-top-color:var(--ink-soft);}
-  .step-bar li.current{color:var(--ink); font-weight:600; border-top-color:var(--ink);}
-  .step-kicker{font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:8px;}
-  .topic-title{font-family:var(--serif); font-size:22px; font-weight:600; margin:2px 0 12px; line-height:1.4;}
+  /* 背景の“ガラスの向こう側”に見える中性の形 */
+  .orb{filter:blur(34px); opacity:.55; animation:float 18s ease-in-out infinite;}
+  .orb.o1{background:rgba(255,255,255,.9); width:300px; height:300px;}
+  .orb.o2{background:#9A9DA8; width:240px; height:240px; opacity:.45;}
+  .orb.o3{background:#F4F1EC; opacity:.7;}
 
-  .field{
-    width:100%; resize:vertical; min-height:76px; border:1px solid var(--line); border-radius:var(--radius);
-    padding:10px 12px; font-family:inherit; font-size:14px; line-height:1.6; background:#fff; color:var(--ink);
+  .app{
+    background:var(--pane);
+    -webkit-backdrop-filter:blur(30px) saturate(180%) brightness(1.04);
+    backdrop-filter:blur(30px) saturate(180%) brightness(1.04);
+    border:1px solid rgba(255,255,255,.55);
+    box-shadow:var(--glass-rim), 0 40px 60px -24px rgba(35,35,55,.4), 0 10px 18px -8px rgba(35,35,55,.16);
   }
-  .field:focus{outline:none; border-color:var(--ink);}
-  .field-label{display:block; font-size:13px; font-weight:600; margin:14px 0 6px;}
-  .recap{background:var(--paper-2); border-left:3px solid var(--ink); padding:10px 14px; margin-bottom:16px;}
-  .recap p{margin:4px 0 0; font-size:14px; white-space:pre-wrap; color:var(--ink-soft);}
-
-  .listen-bar{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:16px;}
-  .listen-bar select{font-family:inherit; font-size:13px; border:1px solid var(--line); background:#fff; padding:6px 8px; border-radius:var(--radius); color:var(--ink);}
-  .listen-note{font-size:11.5px; color:var(--ink-faint); flex-basis:100%;}
-  .btn.small{padding:8px 14px; font-size:13px;}
-
-  .reading h3{font-family:var(--serif); font-size:17px; font-weight:600; margin:22px 0 8px;}
-  .reading p{font-size:15px; margin:0 0 10px; line-height:1.85;}
-  .reading ul{margin:0 0 10px; padding-left:20px; font-size:15px; line-height:1.85;}
-  .reading .story{background:var(--paper-2); border:1px solid var(--line); padding:16px 18px; margin-bottom:6px;}
-  .reading .story p:last-child{margin-bottom:0;}
-  .reading .point{border-left:3px solid var(--ink); padding:4px 0 4px 14px; margin:18px 0 6px;}
-  .reading .point p{margin:0; font-weight:500;}
-  .reading .ba{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:6px 0 12px;}
-  .reading .ba div{border:1px solid var(--line); padding:10px 12px; font-size:13.5px; line-height:1.6;}
-  .reading .ba b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:4px;}
-  .reading .ba .after{border-color:var(--ink);}
-  .reading .flow{list-style:none; padding:0; margin:6px 0 12px;}
-  .reading .flow li{display:flex; gap:12px; padding:8px 0; border-bottom:1px solid var(--line-soft); font-size:14px;}
-  .reading .flow li span:first-child{flex:0 0 92px; font-weight:600;}
-  .reading .fiction{font-size:11.5px; color:var(--ink-faint); margin-top:8px;}
-  @media (max-width:480px){ .reading .ba{grid-template-columns:1fr;} .reading .flow li{flex-direction:column; gap:2px;} .reading .flow li span:first-child{flex:none;} }
-
-  .timer-row{display:flex; align-items:center; gap:14px; margin:14px 0;}
-  .timer{font-family:var(--mono); font-size:28px; font-weight:500; font-variant-numeric:tabular-nums;}
-  .reread{border:1px solid var(--line); background:#fff; padding:4px 16px 12px; margin:14px 0;}
-  .reread summary{cursor:pointer; font-size:13.5px; font-weight:600; padding:10px 0;}
-
-  .recall-card{border:1px solid var(--line); background:#fff; padding:14px 16px; margin-bottom:10px;}
-  .recall-word{font-family:var(--serif); font-size:17px; font-weight:600; margin-bottom:8px;}
-  .recall-def{font-size:14px; background:var(--paper-2); padding:10px 12px; margin-bottom:10px; line-height:1.7;}
-  .link-btn{background:none; border:none; padding:0; font-size:13px; color:var(--ink-soft); text-decoration:underline; cursor:pointer;}
-  .link-btn:hover{color:var(--ink);}
-  .rate-row{display:flex; flex-wrap:wrap; gap:8px;}
-  .rate-result{font-size:13px; font-weight:600;}
-  .rate-result.ng{font-weight:400; color:var(--ink-soft);}
-
-  .review-banner{
-    display:flex; align-items:center; gap:14px; width:100%; text-align:left;
-    background:var(--ink); color:var(--paper); border:none; border-radius:var(--radius);
-    padding:14px 16px; margin-bottom:20px; cursor:pointer; font-family:inherit;
+  .app::before{ /* 斜めに走る反射 */
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:linear-gradient(115deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 70%, rgba(255,255,255,.28) 100%);
   }
-  .review-banner .count{font-family:var(--serif); font-size:28px; font-weight:600; line-height:1;}
-  .review-banner .txt{flex:1; font-size:13px; line-height:1.6;}
-  .review-banner .txt strong{display:block; font-size:15px;}
-  .review-banner .go{font-size:13px; font-weight:600; white-space:nowrap;}
-  .review-banner.idle{background:var(--paper-2); color:var(--ink-soft); border:1px solid var(--line); cursor:default;}
-  .review-banner.idle strong{color:var(--ink);}
-  .review-card{text-align:center; padding:26px 18px;}
-  .review-card .recall-word{font-size:22px; margin:8px 0 12px;}
-  .review-card .recall-def{text-align:left;}
-  .countdown{font-family:var(--serif); font-size:48px; font-weight:600; margin:6px 0 14px; font-variant-numeric:tabular-nums;}
-  .review-card .rate-row{justify-content:center;}
+  .app > *{position:relative;}
 
-  /* --- 質問ボット --- */
-  .bot-fab{
-    position:fixed; right:20px; bottom:20px; z-index:50;
-    display:flex; align-items:center; gap:8px;
-    background:var(--ink); color:var(--paper); border:none; border-radius:24px;
-    padding:12px 18px; font-size:14px; font-weight:500; cursor:pointer;
-    box-shadow:0 4px 16px rgba(0,0,0,.18);
+  .brand-icon{
+    background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(79,209,188,.9), rgba(124,92,240,.9));
+    box-shadow:var(--cast-sm), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -2px 4px rgba(40,20,120,.25);
+    border:1px solid rgba(255,255,255,.6);
   }
-  .bot-fab:hover{background:#000;}
-  .bot-fab svg{width:18px; height:18px;}
-  .in-chat .bot-fab{display:none;}
-  .bot-panel{
-    position:fixed; right:20px; bottom:76px; z-index:51;
-    width:360px; max-width:calc(100vw - 32px); height:500px; max-height:calc(100vh - 110px);
-    background:#fff; border:1px solid var(--ink); border-radius:var(--radius);
-    box-shadow:0 12px 40px rgba(0,0,0,.18);
-    display:flex; flex-direction:column; overflow:hidden;
-    opacity:0; pointer-events:none; transform:translateY(10px);
-    transition:opacity .18s ease, transform .18s ease;
+
+  .tabs{
+    background:linear-gradient(180deg, rgba(60,60,80,.10), rgba(255,255,255,.25));
+    border:1px solid rgba(255,255,255,.65);
+    box-shadow:inset 0 3px 8px rgba(35,35,55,.16), inset 0 -1px 0 rgba(255,255,255,.8);
   }
-  .bot-panel.open{opacity:1; pointer-events:auto; transform:translateY(0);}
-  .bot-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--line);}
-  .bot-head b{font-family:var(--serif); font-size:15px; font-weight:600;}
-  .bot-head span{display:block; font-size:11px; color:var(--ink-faint);}
-  .bot-close{background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:var(--ink); padding:2px 6px;}
-  .bot-msgs{flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--paper-2);}
-  .bot-empty{font-size:12.5px; color:var(--ink-soft); line-height:1.7;}
-  .bot-empty .chip{display:block; width:100%; margin-top:8px; font-size:12.5px;}
-  .bot-msg{max-width:88%; padding:9px 12px; font-size:13.5px; line-height:1.65; white-space:pre-wrap; border-radius:var(--radius);}
-  .bot-msg.user{align-self:flex-end; background:var(--ink); color:var(--paper);}
-  .bot-msg.bot{align-self:flex-start; background:#fff; border:1px solid var(--line);}
-  .bot-msg.pending{color:var(--ink-faint);}
-  .bot-msg.error{border-style:dashed;}
-  .bot-input{display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); background:#fff;}
-  .bot-input textarea{
-    flex:1; resize:none; border:1px solid var(--line); border-radius:var(--radius);
-    padding:8px 10px; font-family:inherit; font-size:13.5px; min-height:40px; max-height:96px;
+  .tab.active{
+    background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.62));
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:var(--cast-sm), inset 0 1.5px 0 #fff, inset 0 -2px 5px rgba(35,35,55,.08);
   }
-  .bot-input textarea:focus{outline:none; border-color:var(--ink);}
-  .bot-input .btn{padding:8px 14px; font-size:13px; align-self:flex-end;}
-  @media (max-width:480px){
-    .bot-fab{right:14px; bottom:14px;}
-    .bot-panel{right:16px; bottom:66px;}
-    main{padding-bottom:90px;}
+
+  .btn{
+    border:1px solid rgba(255,255,255,.6);
+    background:linear-gradient(180deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.06) 52%, rgba(255,255,255,0) 100%), linear-gradient(135deg, rgba(160,134,255,.92), rgba(104,72,232,.88));
+    box-shadow:0 16px 18px -10px rgba(80,50,200,.6), 0 3px 4px rgba(35,35,55,.12), inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -3px 6px rgba(50,20,150,.3);
+    text-shadow:0 1px 2px rgba(50,20,150,.35);
   }
+  .btn:hover{box-shadow:0 20px 22px -10px rgba(80,50,200,.65), 0 3px 4px rgba(35,35,55,.12), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -3px 6px rgba(50,20,150,.3);}
+  .btn.secondary{
+    color:#0F4F46; text-shadow:0 1px 0 rgba(255,255,255,.5);
+    background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.08) 55%, rgba(255,255,255,0) 100%), linear-gradient(135deg, rgba(140,236,220,.9), rgba(70,200,180,.82));
+    box-shadow:0 16px 18px -10px rgba(20,120,105,.5), 0 3px 4px rgba(35,35,55,.1), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -3px 6px rgba(20,120,105,.22);
+  }
+
+  .quiz-count, .back-link{
+    background:var(--pane); border:1px solid rgba(255,255,255,.7);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    box-shadow:var(--cast-sm), var(--glass-rim);
+  }
+  .quiz-progress{background:rgba(35,35,55,.1); box-shadow:inset 0 2px 4px rgba(35,35,55,.2), 0 1px 0 rgba(255,255,255,.8);}
+  .quiz-progress i{box-shadow:inset 0 1px 0 rgba(255,255,255,.7);}
+
+  .quiz-card{
+    background:var(--pane);
+    -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+    border:1px solid rgba(255,255,255,.6);
+    box-shadow:var(--cast), var(--glass-rim);
+  }
+
+  .choice, .chip, .scenario-card, .msg.mentor .bubble{
+    background:linear-gradient(150deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.34) 50%, rgba(255,255,255,.5) 100%);
+    -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+    border:1px solid rgba(255,255,255,.75);
+    box-shadow:var(--cast-sm), var(--glass-rim);
+  }
+  .choice:hover:not(:disabled), .chip:hover, .scenario-card:hover{
+    background:linear-gradient(150deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.7) 100%);
+    box-shadow:0 18px 20px -10px rgba(35,35,55,.38), 0 4px 6px -2px rgba(35,35,55,.12), var(--glass-rim);
+  }
+  .choice .mark{
+    background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(124,92,240,.14));
+    box-shadow:inset 0 1px 0 #fff, 0 3px 6px -2px rgba(35,35,55,.25);
+  }
+  .choice.correct{
+    background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 55%), linear-gradient(135deg, rgba(140,236,220,.85), rgba(70,200,180,.65));
+    box-shadow:0 16px 18px -10px rgba(20,120,105,.5), var(--glass-rim);
+  }
+  .choice.wrong{
+    background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 55%), linear-gradient(135deg, rgba(246,168,200,.85), rgba(255,201,168,.7));
+    box-shadow:0 16px 18px -10px rgba(190,70,110,.4), var(--glass-rim);
+  }
+  .ic{
+    background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(160,134,255,.95), rgba(104,72,232,.9));
+    box-shadow:0 8px 10px -4px rgba(80,50,200,.45), inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -2px 4px rgba(50,20,150,.25);
+    border:1px solid rgba(255,255,255,.5);
+  }
+  .ic.t{background:linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(140,236,220,.95), rgba(70,200,180,.9)); box-shadow:0 8px 10px -4px rgba(20,120,105,.4), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -2px 4px rgba(20,120,105,.2);}
+  .ic.r{background:linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(255,214,184,.95), rgba(246,150,190,.9)); box-shadow:0 8px 10px -4px rgba(190,70,110,.35), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -2px 4px rgba(190,70,110,.2);}
+
+  .explain, .msg.mentor.summary .bubble{
+    background:linear-gradient(115deg, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 40%), linear-gradient(135deg, rgba(255,205,172,.62), rgba(246,168,200,.52) 42%, rgba(155,127,255,.5));
+    -webkit-backdrop-filter:blur(18px) saturate(170%); backdrop-filter:blur(18px) saturate(170%);
+    border:1px solid rgba(255,255,255,.75);
+    box-shadow:var(--cast), var(--glass-rim);
+  }
+  .msg.user .bubble{
+    background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0) 52%), linear-gradient(135deg, rgba(160,134,255,.92), rgba(104,72,232,.88));
+    border:1px solid rgba(255,255,255,.5);
+    box-shadow:0 16px 18px -10px rgba(80,50,200,.55), inset 0 1.5px 0 rgba(255,255,255,.8), inset 0 -3px 6px rgba(50,20,150,.28);
+  }
+  .composer{
+    background:var(--pane);
+    -webkit-backdrop-filter:blur(24px) saturate(180%); backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:var(--cast), var(--glass-rim);
+  }
+  /* ===== GLASS v3: より透明 ===== */
+  :root{
+    --pane:linear-gradient(145deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.06) 40%, rgba(255,255,255,.02) 62%, rgba(255,255,255,.22) 100%);
+    --pane-in:linear-gradient(150deg, rgba(255,255,255,.42) 0%, rgba(255,255,255,.10) 48%, rgba(255,255,255,.26) 100%);
+    --glass-rim:inset 0 1.5px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.5), inset 1.5px 0 0 rgba(255,255,255,.6), inset -1px 0 0 rgba(255,255,255,.35), inset 0 0 28px rgba(255,255,255,.18);
+  }
+  /* 透けて見えるものを背景に置く */
+  .orb{filter:blur(18px); opacity:.8;}
+  .orb.o1{background:linear-gradient(135deg,#fff,#cfd2da); width:280px; height:280px; top:6%; left:4%;}
+  .orb.o2{background:linear-gradient(135deg,#8E93A3,#5E6578); width:230px; height:230px; bottom:10%; right:3%; opacity:.6;}
+  .orb.o3{background:linear-gradient(135deg,#fff,#b9bcc6); width:190px; height:190px; top:48%; left:62%; opacity:.75;}
+  .app{
+    -webkit-backdrop-filter:blur(14px) saturate(190%) brightness(1.06);
+    backdrop-filter:blur(14px) saturate(190%) brightness(1.06);
+    border:1px solid rgba(255,255,255,.7);
+  }
+  .app::before{background:linear-gradient(115deg, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 18%, rgba(255,255,255,0) 72%, rgba(255,255,255,.2) 100%);}
+  .quiz-card{background:var(--pane); -webkit-backdrop-filter:blur(10px) saturate(190%); backdrop-filter:blur(10px) saturate(190%);}
+  .choice, .chip, .scenario-card, .msg.mentor .bubble{
+    background:var(--pane-in);
+    -webkit-backdrop-filter:blur(8px) saturate(190%) brightness(1.08); backdrop-filter:blur(8px) saturate(190%) brightness(1.08);
+    border:1px solid rgba(255,255,255,.8);
+  }
+  .choice:hover:not(:disabled), .chip:hover, .scenario-card:hover{
+    background:linear-gradient(150deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.4) 100%);
+  }
+  .composer{background:var(--pane-in); -webkit-backdrop-filter:blur(12px) saturate(190%); backdrop-filter:blur(12px) saturate(190%);}
+  .quiz-count, .back-link{background:var(--pane-in);}
+  .tab.active{background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.3));}
+  .btn{
+    background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.05) 50%, rgba(255,255,255,0) 100%), linear-gradient(135deg, rgba(160,134,255,.72), rgba(104,72,232,.66));
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  }
+  .btn.secondary{background:linear-gradient(180deg, rgba(255,255,255,.65) 0%, rgba(255,255,255,.06) 55%, rgba(255,255,255,0) 100%), linear-gradient(135deg, rgba(140,236,220,.72), rgba(70,200,180,.62));}
+  .msg.user .bubble{background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 52%), linear-gradient(135deg, rgba(160,134,255,.75), rgba(104,72,232,.7)); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);}
+  .ic{background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(160,134,255,.8), rgba(104,72,232,.72));}
+  .ic.t{background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(140,236,220,.85), rgba(70,200,180,.75));}
+  .ic.r{background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,0) 55%), linear-gradient(140deg, rgba(255,214,184,.85), rgba(246,150,190,.75));}
+  .explain, .msg.mentor.summary .bubble{background:linear-gradient(115deg, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 40%), linear-gradient(135deg, rgba(255,205,172,.42), rgba(246,168,200,.34) 42%, rgba(155,127,255,.36));}
+
+  /* ===== 思い出す式 ===== */
+  .flow{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 28px; font-size:12.5px; font-weight:600; color:var(--ink-soft);}
+  .flow span.s{padding:7px 14px; border-radius:var(--r-pill); background:var(--pane-in); border:1px solid rgba(255,255,255,.8); box-shadow:var(--cast-sm), var(--glass-rim);}
+  .flow span.s.on{color:#fff; background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 55%), linear-gradient(135deg, rgba(160,134,255,.8), rgba(104,72,232,.72));}
+  .flow i{font-style:normal; color:var(--ink-faint);}
+  .sec-label{font-size:13px; font-weight:700; color:var(--ink-soft); margin:26px 0 12px;}
+  .badge{margin-left:auto; flex:none; font-family:var(--sans); font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:var(--r-pill); background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.85); color:var(--ink-soft);}
+  .badge.due{color:#8C2E55; background:linear-gradient(135deg,rgba(255,214,184,.8),rgba(246,168,200,.7));}
+  .badge.ok{color:#0F4F46; background:linear-gradient(135deg,rgba(140,236,220,.8),rgba(70,200,180,.6));}
+  .recall-card{
+    background:var(--pane); border:1px solid rgba(255,255,255,.7); border-radius:var(--r-lg);
+    padding:28px 26px; margin-bottom:22px;
+    -webkit-backdrop-filter:blur(10px) saturate(190%); backdrop-filter:blur(10px) saturate(190%);
+    box-shadow:var(--cast), var(--glass-rim);
+  }
+  .recall-card h3{margin:0 0 6px; font-size:20px; font-weight:700;}
+  .cue{font-size:15px; font-weight:600; color:var(--violet); margin:0 0 18px; line-height:1.7;}
+  .points{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px;}
+  .points li{display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-radius:var(--r-md); background:var(--pane-in); border:1px solid rgba(255,255,255,.8); box-shadow:var(--cast-sm), var(--glass-rim); font-size:14.5px; line-height:1.7;}
+  .points .dot{flex:none; width:26px; height:26px; margin-top:1px; border-radius:50%; display:grid; place-items:center; font-family:var(--sans); font-size:12px; font-weight:700; color:var(--violet); background:rgba(124,92,240,.14);}
+  .points label{display:flex; gap:12px; align-items:flex-start; cursor:pointer; width:100%;}
+  .points input{width:20px; height:20px; margin-top:3px; accent-color:var(--violet); flex:none;}
+  .points li.hit{background:linear-gradient(135deg,rgba(140,236,220,.6),rgba(70,200,180,.35));}
+  .points li.miss{background:linear-gradient(135deg,rgba(255,214,184,.6),rgba(246,168,200,.4));}
+  .recall-area{
+    width:100%; min-height:200px; resize:vertical; padding:18px 20px;
+    font-family:inherit; font-size:15px; line-height:1.8; color:var(--ink);
+    background:linear-gradient(180deg, rgba(35,35,55,.06), rgba(255,255,255,.28));
+    border:1px solid rgba(255,255,255,.8); border-radius:var(--r-md); outline:none;
+    box-shadow:inset 0 3px 8px rgba(35,35,55,.14), inset 0 -1px 0 rgba(255,255,255,.8);
+  }
+  .recall-area:focus-visible{outline:3px solid rgba(124,92,240,.4); outline-offset:2px;}
+  .hint{font-size:13px; color:var(--ink-soft); margin:12px 4px 0;}
+  .btn-row{display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap; margin-top:22px;}
+  .mine{white-space:pre-wrap; font-size:14px; line-height:1.8; color:var(--ink-soft); padding:16px 18px; border-radius:var(--r-md); background:rgba(255,255,255,.35); border:1px dashed rgba(35,35,55,.2); margin-bottom:20px;}
+  .result-num{font-family:var(--sans); font-size:40px; font-weight:800; background:linear-gradient(135deg,var(--teal),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent;}
 </style>
 </head>
 <body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
 <div class="app">
-  <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
   <header class="app-header">
-    <div class="brand"><span class="brand-mark">UI/UX</span><h1>設計思考ラボ</h1></div>
-    <p class="tagline">基礎知識・クイズ・対話・疑似実践の4つの方法で、UI/UXの原則を「知っている」から「使える」に変えます。</p>
+    <div class="brand">
+      <span class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="4"/><path d="M8 21h8M12 18v3"/></svg></span>
+      <div><div class="brand-sub">UI/UX LAB</div><h1>設計思考ラボ</h1></div>
+    </div>
+    <p class="tagline">クイズ・対話・疑似実践の3つの方法で、UI/UXの原則を「知っている」から「使える」に変えます。</p>
     <nav class="tabs" id="tabs">
-      <button class="tab active" data-mode="basics">基礎知識</button>
-      <button class="tab" data-mode="quiz">クイズ式</button>
-      <button class="tab" data-mode="socratic">ソクラテス式</button>
-      <button class="tab" data-mode="practice">疑似実践</button>
+      <button class="tab active" data-mode="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg>クイズ式</button>
+      <button class="tab" data-mode="socratic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>ソクラテス式</button>
+      <button class="tab" data-mode="practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>疑似実践</button>
+      <button class="tab" data-mode="recall"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.4 1 2.5h6c0-1.1.3-1.8 1-2.5A6 6 0 0 0 12 3z"/><path d="M10 20h4"/></svg>思い出す式</button>
     </nav>
   </header>
   <main id="main"></main>
-  <footer class="app-footer"><div class="corner corner-bl"></div><div class="corner corner-br"></div></footer>
-</div>
-
-<button class="bot-fab" id="bot-fab" aria-label="質問ボットを開く">
-  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h8M8 14h5m-8 6 2.5-3H19a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h0z"/></svg>
-  質問する
-</button>
-<div class="bot-panel" id="bot-panel" role="dialog" aria-label="質問ボット">
-  <div class="bot-head">
-    <div><b>質問ボット</b><span>UI/UXについて、わからないことを何でも</span></div>
-    <button class="bot-close" id="bot-close" aria-label="閉じる">×</button>
-  </div>
-  <div class="bot-msgs" id="bot-msgs">
-    <div class="bot-empty">
-      読んでいて出てきた疑問を、そのまま聞いてみましょう。疑問を言葉にして確かめることも、記憶を強くします。
-      <button class="chip" data-ask="フィッツの法則を、スマホアプリの身近な例で教えて">フィッツの法則を、スマホアプリの身近な例で教えて</button>
-      <button class="chip" data-ask="アフォーダンスとシグニファイアの違いは？">アフォーダンスとシグニファイアの違いは？</button>
-      <button class="chip" data-ask="ヒックの法則とミラーの法則は、どう使い分けるの？">ヒックの法則とミラーの法則は、どう使い分けるの？</button>
-    </div>
-  </div>
-  <div class="bot-input">
-    <textarea id="bot-text" rows="1" placeholder="質問を入力…（Enterで送信）"></textarea>
-    <button class="btn" id="bot-send">送信</button>
-  </div>
 </div>
 
 <script>
@@ -522,229 +601,54 @@ const PRACTICE_SCENARIOS = [
    brief:"マーケティング担当者から「競合と同じ目立つオレンジ色に購入ボタンを変えたい」と依頼が来ました。あなたはデザイナーとしてどう判断し、どう対応しますか？"}
 ];
 
-/* ============ BASICS DATA ============ */
-// 架空のカフェ「まめ日和」のモバイルオーダーアプリを立て直すストーリーで、全5トピックをつなぐ
-const FICTION = `<p class="fiction">※「まめ日和」と登場人物・数値は、学習用の架空の例です。</p>`;
-const BASICS = [
-  {
-    title:"使いやすさは、ユーザーが決める",
-    content:`
-      <div class="story">
-        <span class="tag">STORY 1</span>
-        <p>カフェ「まめ日和」は、スマホで注文して店頭で受け取れるモバイルオーダーアプリを始めました。ところが、アプリを開いた人のうち<strong>注文まで進むのは10人に4人</strong>。店長は「ボタンをもっとおしゃれにすれば増えるはず」と言います。</p>
-        <p>デザイナーの湊さんは、見た目を変える前に、常連さん5人に目の前でアプリを使ってもらいました。すると「メニューが多すぎて選べない」「次にどこを押せばいいか分からない」「エラーが出て止まった」と、つまずく場所がはっきり見えてきました。</p>
-      </div>
-      ${FICTION}
-      <h3>UIとUXのちがい</h3>
-      <ul>
-        <li><strong>UI（ユーザーインターフェース）</strong>：画面に見えるもの・触れるもの。ボタン、文字、色、配置。</li>
-        <li><strong>UX（ユーザーエクスペリエンス）</strong>：アプリを知る前から、注文して、受け取り、また使いたくなるまでの体験全体。「並ばずに受け取れて気分がいい」もUXです。</li>
-      </ul>
-      <p>おしゃれなボタン（UI）だけ整えても、「選べない」「迷う」（UXの問題）が残れば、注文は増えません。</p>
-      <h3>ユーザー中心設計</h3>
-      <p>作り手の「たぶんこうだろう」ではなく、<strong>実際のユーザーを観察して、つまずきを見つけ、直して、また確かめる</strong>進め方です。湊さんが最初にしたのは、デザインではなく観察でした。ここから先のトピックで、見つかった3つのつまずきを1つずつ直していきます。</p>
-      <div class="point"><p>「使いやすいか」を決めるのは作り手ではなくユーザー。まず観察から始める。</p></div>`,
-    keywords:[
-      {word:"UI", def:"画面に見えるもの・触れるもの（ボタン、文字、色、配置など）"},
-      {word:"UX", def:"サービスを知る前から、使い終わり、また使うまでを含めた体験全体"},
-      {word:"ユーザー中心設計", def:"作り手の思い込みではなく、実際のユーザーを観察し、直し、また確かめながら設計を進める考え方"}
-    ],
-    question:{
-      q:"店長が「注文ボタンを競合と同じオレンジ色に変えれば、注文が増えるはず」と言っています。ユーザー中心設計の考え方で、まずやるべきことは？",
-      c:["すぐにオレンジ色に変えて公開する","実際のお客さんに使ってもらい、どこでつまずいているかを観察する","デザイナーが一番好きな色に決める","競合のアプリの画面をそのまま真似する"],
-      a:1,
-      e:"色を変えるのは「たぶんこうだろう」という作り手の仮説です。まずユーザーのつまずきを観察すれば、色以外のもっと大きな原因（選べない・迷う）が見つかることがよくあります。"
-    }
-  },
-  {
-    title:"選択肢が多いと、人は選べない",
-    content:`
-      <div class="story">
-        <span class="tag">STORY 2</span>
-        <p>1つめのつまずきは「メニューが多すぎて選べない」。メニュー画面には、ドリンクとフードの<strong>48品が縦に一列</strong>。さらに各商品には「ミルク変更」「シロップ追加」など<strong>8つのオプションが最初から全部</strong>表示されていました。</p>
-        <p>湊さんは、メニューを「人気」「ドリンク」「フード」の3つに分け、最初は人気の6品だけを表示。オプションは「カスタマイズする」を押したときだけ開くようにしました。</p>
-      </div>
-      ${FICTION}
-      <h3>ヒックの法則</h3>
-      <p><strong>選択肢の数が増えるほど、決めるまでの時間は長くなる</strong>という法則です。48品を前にすると、人は比べるだけで疲れて、選ぶのをやめてしまいます。</p>
-      <h3>ミラーの法則（チャンク）</h3>
-      <p>人が短期記憶で一度に扱える情報のかたまり（<strong>チャンク</strong>）は、およそ<strong>7±2個</strong>といわれます（最近はもっと少なく4個前後という説もあります）。電話番号を「090-1234-5678」と3つに区切ると覚えやすいのは、チャンクにまとめているからです。メニューを3つのカテゴリに分けたのも同じ考え方です。</p>
-      <h3>プログレッシブディスクロージャー</h3>
-      <p>すべてを最初に見せるのではなく、<strong>必要になったときに、必要な分だけ段階的に見せる</strong>手法です。オプションを「カスタマイズする」の奥にしまったことで、ほとんどの人は迷わず注文でき、こだわりたい人だけが細かく選べるようになりました。</p>
-      <div class="ba">
-        <div><b>BEFORE</b>48品が一列＋全商品にオプション8つ</div>
-        <div class="after"><b>AFTER</b>3カテゴリ・最初は人気6品・オプションは押したときだけ</div>
-      </div>
-      <div class="point"><p>選択肢は「減らす」「まとめる」「後から見せる」。</p></div>`,
-    keywords:[
-      {word:"ヒックの法則", def:"選択肢の数が増えるほど、決めるまでの時間が長くなる"},
-      {word:"ミラーの法則（チャンク）", def:"短期記憶で一度に扱える情報のかたまりは7±2個ほど。情報は小さなまとまりに区切ると扱いやすい"},
-      {word:"プログレッシブディスクロージャー", def:"必要になったときに、必要な分だけ段階的に見せる手法"}
-    ],
-    question:{
-      q:"会員登録フォームに入力欄が15個並んでいて、途中でやめる人が多いことが分かりました。このトピックの考え方で、最も適した改善は？",
-      c:["欄の色をカラフルにして楽しい雰囲気にする","15個すべてに詳しい説明文を足す","最初は必須の3項目だけにし、残りは登録後に必要になったときに聞く","文字を小さくして1画面に収める"],
-      a:2,
-      e:"項目を減らし、残りは必要になったときに聞く――ヒックの法則とプログレッシブディスクロージャーの組み合わせです。説明文を足したり詰め込んだりすると、一度に見る情報はむしろ増えてしまいます。"
-    }
-  },
-  {
-    title:"見た目で「まとまり」と「押せる」を伝える",
-    content:`
-      <div class="story">
-        <span class="tag">STORY 3</span>
-        <p>2つめのつまずきは「次にどこを押せばいいか分からない」。観察すると、原因は3つありました。</p>
-        <ul>
-          <li>商品名と価格の間隔がすべて同じで、どの価格がどの商品のものか迷う</li>
-          <li>「次へ」がただの文字で、押せることに気づかず止まってしまう</li>
-          <li>同じ大きさの太字が画面に5つあり、どこを見ればいいか分からない</li>
-        </ul>
-      </div>
-      ${FICTION}
-      <h3>ゲシュタルトの「近接の法則」</h3>
-      <p><strong>近くにあるものは、関係があるまとまりに見える</strong>という法則です。湊さんは、商品名と価格の間を詰め、商品と商品の間を広くあけました。それだけで、どの価格がどの商品のものか一目で分かるようになりました。</p>
-      <h3>アフォーダンスとシグニファイア</h3>
-      <p><strong>アフォーダンス</strong>は、モノが持つ「こう使える」という性質。ドアの取っ手が「引ける」のがその例です。<strong>シグニファイア</strong>は、その使い方を伝える手がかり（形・影・色・下線・アイコンなど）です。「次へ」を、背景色のついたボタンの形にしたことで、押せることが伝わるようになりました。</p>
-      <h3>視覚的階層</h3>
-      <p>大きさ・太さ・色・余白で<strong>重要度の順番</strong>をつけることです。いちばん目立たせるものは1つだけ。湊さんは「カートに入れる」だけを黒い大きなボタンにし、他の情報は控えめにしました。</p>
-      <div class="point"><p>余白で「まとまり」を、形で「押せる」を、強弱で「順番」を伝える。</p></div>`,
-    keywords:[
-      {word:"近接の法則", def:"近くにあるものは、関係があるまとまりに見える（ゲシュタルトの法則のひとつ）"},
-      {word:"アフォーダンス", def:"モノが持つ「こう使える」という性質（取っ手は引ける、ボタンは押せる）"},
-      {word:"シグニファイア", def:"使い方を伝える手がかり。形・影・色・下線・アイコンなど"},
-      {word:"視覚的階層", def:"大きさ・太さ・色・余白で重要度の順番をつけること。いちばん目立たせるものは1つ"}
-    ],
-    question:{
-      q:"設定画面で、ラベル「メールアドレス」が上下2つの入力欄のちょうど中間にあり、どちらの欄のラベルか分かりにくくなっています。原因と直し方として正しいのは？",
-      c:["類似の法則：ラベルを赤くして目立たせる","近接の法則：ラベルを対応する入力欄のすぐ近くに寄せ、ほかの欄との間を広くあける","視覚的階層：ラベルの文字を大きくする","アフォーダンス：ラベルに影をつけて立体的にする"],
-      a:1,
-      e:"「どれとどれが関係しているか」は距離で伝わります。ラベルと入力欄の間を詰め、ほかの欄との間を広げるのが近接の法則の使い方です。色や大きさを変えても、どちらの欄のラベルかは分かりません。"
-    }
-  },
-  {
-    title:"指が届き、迷わず操作できる",
-    content:`
-      <div class="story">
-        <span class="tag">STORY 4</span>
-        <p>メニューと見た目が整っても、まだ問題が残っていました。</p>
-        <ul>
-          <li>「注文を確定する」ボタンが画面の上の方に小さくあり、片手で持つと親指が届かない</li>
-          <li>カートのアイコンが左下の独自の位置にあり、見つけられない人がいる</li>
-          <li>確定ボタンを押しても画面が数秒変わらず、もう一度押して<strong>二重注文</strong>になった人が3人</li>
-        </ul>
-      </div>
-      ${FICTION}
-      <h3>フィッツの法則</h3>
-      <p><strong>押す場所は、大きくて近いほど、速く正確に押せる</strong>という法則です。湊さんは確定ボタンを、親指が届く画面の下に横幅いっぱいで置きました。反対に「注文を取り消す」のような押し間違えると困る操作は、あえて小さく、離れた場所に置きます。</p>
-      <h3>タップ領域の大きさ</h3>
-      <p>指はマウスより大まかなので、押せる範囲には最低限の大きさが必要です。目安は<strong>Appleが44×44pt、Googleが48×48dp</strong>。見た目が小さいアイコンでも、押せる範囲はこの大きさを確保します。</p>
-      <h3>ヤコブの法則</h3>
-      <p>ユーザーは、ほかの多くのアプリで身につけた使い方を<strong>このアプリにも期待する</strong>という法則です。カートは右上、という「よくある場所」に戻したことで、迷う人はいなくなりました。</p>
-      <h3>システム状態の視認性</h3>
-      <p><strong>いま何が起きているかを、ユーザーに常に伝える</strong>こと（ニールセンのユーザビリティ10原則のひとつ）。押した直後にボタンを「送信中…」に変えて押せない状態にし、完了したら「注文を受け付けました（受取番号 23）」と表示するようにしました。二重注文はなくなりました。</p>
-      <div class="point"><p>大きく、届く場所に、いつもの位置で。押したら、すぐに反応を返す。</p></div>`,
-    keywords:[
-      {word:"フィッツの法則", def:"押す場所は、大きくて近いほど速く正確に押せる。押し間違えると困る操作は、あえて小さく離す"},
-      {word:"タップ領域の目安", def:"Appleは44×44pt、Googleは48×48dp。見た目が小さくても押せる範囲はこの大きさを確保する"},
-      {word:"ヤコブの法則", def:"ユーザーは、ほかのアプリで身につけた使い方をこのアプリにも期待する"},
-      {word:"システム状態の視認性", def:"いま何が起きているか（送信中・完了など）を、ユーザーに常に伝えること"}
-    ],
-    question:{
-      q:"支払いボタンを押しても画面が数秒変わらず、ユーザーがもう一度押して二重決済になってしまいます。いちばん先に直すべき原則は？",
-      c:["ヤコブの法則：ボタンを右上に移す","ヒックの法則：支払い方法の選択肢を減らす","ミラーの法則：金額を3桁ごとに区切る","システム状態の視認性：押した直後に「処理中…」を表示し、ボタンを押せない状態にする"],
-      a:3,
-      e:"ユーザーは「反応がない＝押せていない」と考えて、もう一度押します。押した直後に状態を見せ、二度押せないようにするのが根本的な対策です。"
-    }
-  },
-  {
-    title:"誰でも使えるか、確かめて直す",
-    content:`
-      <div class="story">
-        <span class="tag">STORY 5</span>
-        <p>3つめのつまずきは「エラーが出て止まった」。電話番号をハイフンつきで入力すると、画面の上に赤字で<strong>「入力エラー」</strong>とだけ出ていました。また、価格はおしゃれな薄いグレーで、<strong>日差しの強い屋外や、視力の弱いお客さんには読めない</strong>ことも分かりました。</p>
-        <p>直したあと、湊さんはもう一度5人に使ってもらいました。すると今度は「受け取り時間の選び方が分からない」という新しいつまずきが見つかり、それも直しました。数週間後、注文まで進む人は<strong>10人に4人から、10人に7人</strong>になりました。</p>
-      </div>
-      ${FICTION}
-      <h3>コントラスト比</h3>
-      <p>文字と背景の明るさの差です。Webのアクセシビリティ基準（WCAG）のAAでは、<strong>通常の本文は4.5:1以上</strong>（大きな文字は3:1以上）が目安です。薄いグレーの文字は、見た目はやわらかくても、読めない人を生みます。</p>
-      <h3>良いエラーメッセージ</h3>
-      <p><strong>何が起きたか・なぜか・どう直せばいいか</strong>を、問題のある欄のすぐそばに出します。</p>
-      <div class="ba">
-        <div><b>BEFORE</b>画面の上に「入力エラー」</div>
-        <div class="after"><b>AFTER</b>電話番号欄のすぐ下に「電話番号は数字11桁で入力してください（ハイフンは不要です）」</div>
-      </div>
-      <h3>ユーザビリティテストと「5人の法則」</h3>
-      <p>ニールセンによると、<strong>5人ほどにテストすれば、主な問題の多くが見つかる</strong>とされます。大人数に1回より、<strong>5人ずつ、直しては確かめる</strong>をくり返すほうが効果的です。湊さんが2回目のテストで新しい問題を見つけたのも、このためです。</p>
-      <h3>まめ日和で通ってきた流れ</h3>
-      <ul class="flow">
-        <li><span>① 観察する</span><span>5人に使ってもらい、3つのつまずきを見つけた</span></li>
-        <li><span>② 減らす</span><span>3カテゴリ・人気6品・オプションは後から（ヒック／チャンク／段階的表示）</span></li>
-        <li><span>③ 伝える</span><span>余白でまとまり、ボタンの形で押せる、強弱で順番（近接／シグニファイア／階層）</span></li>
-        <li><span>④ 操作しやすく</span><span>下に大きく、カートは右上、押したら「送信中…」（フィッツ／ヤコブ／状態の視認性）</span></li>
-        <li><span>⑤ 確かめる</span><span>読める文字とエラー文に直し、また5人でテスト → ①へ</span></li>
-      </ul>
-      <div class="point"><p>デザインは一度で完成しない。観察 → 直す → 確かめる、をくり返す。</p></div>`,
-    keywords:[
-      {word:"コントラスト比の目安", def:"WCAG AAでは通常の本文は4.5:1以上（大きな文字は3:1以上）"},
-      {word:"良いエラーメッセージ", def:"何が起きたか・なぜか・どう直せばいいかを、問題のある欄のすぐそばに出す"},
-      {word:"5人の法則", def:"5人ほどのユーザビリティテストで主な問題の多くが見つかる。5人ずつ、直しては確かめるをくり返す"},
-      {word:"デザイン改善の流れ", def:"観察する → 減らす → 伝える → 操作しやすくする → 確かめる → また観察へ"}
-    ],
-    question:{
-      q:"改善したアプリを公開前に確かめたいのですが、予算と時間は限られています。最も効果的なやり方は？",
-      c:["5人ほどにテストして直し、また5人ほどでテストする、をくり返す","100人を集めて一度だけテストする","社内のデザイナー全員で見た目を評価する","公開してから問い合わせが来るのを待つ"],
-      a:0,
-      e:"少人数で回数を重ねるほうが、直した結果を確かめながら新しい問題も見つけられます。作り手どうしの評価では、ユーザーのつまずきは見えにくいままです。"
-    }
-  }
+const RECALL_CARDS = [
+  {id:"jakob", title:"ヤコブの法則", cue:"初めて使うサイトでも、カートを右上に探してしまうのはなぜ？",
+   points:["人は、ほかのサイトで慣れた使い方を、新しいサイトにも当てはめて探す","だから、よくある配置（カートは右上など）に合わせると迷われにくい","よくある形から外れると、覚え直す負担が増えて、離れられやすい"]},
+  {id:"fitts", title:"フィッツの法則", cue:"「削除」ボタンをあえて小さく端に置くことがあるのはなぜ？",
+   points:["ボタンは、大きくて近いほど押しやすい","よく使う操作は、大きく押しやすい場所に置く","間違って押されたくない操作は、小さく離して置く"]},
+  {id:"hick", title:"ヒックの法則", cue:"100品もあるメニューで、決められなくなるのはなぜ？",
+   points:["選択肢が増えるほど、決めるまでの時間が長くなる","選択肢の数は、必要なものだけに絞る","一度に全部見せず、段階に分けて見せると決めやすい"]},
+  {id:"gestalt", title:"近接の法則", cue:"フォームで、項目ごとにすき間の広さを変えるのはなぜ？",
+   points:["近くにあるものは、同じ仲間に見える","関係があるものは間をつめ、別のものは広くあける","ラベルと入力欄は、近くに置く"]},
+  {id:"affordance", title:"アフォーダンス", cue:"ドアの取っ手を見ただけで「引く」と分かるのはなぜ？",
+   points:["ものの形が、どう使うかを教えてくれること","画面では、影や立体感で「押せそう」と伝える","押せないのに押せそうに見えると、ユーザーが迷う"]},
+  {id:"contrast", title:"文字のコントラスト", cue:"薄いグレーの文字が、読めない人がいるのはなぜ？",
+   points:["本文は、背景との明るさの差を4.5:1以上にする（WCAG AA）","薄い文字は、視力が弱い人や、明るい屋外で読みにくい","おしゃれさより、読めることを優先する"]},
+  {id:"tap", title:"タップの大きさ", cue:"スマホのボタンは、どのくらいの大きさが押しやすい？",
+   points:["Appleの目安は44×44pt、Googleは48×48dp","指は、マウスの矢印より当たる範囲が広い","小さすぎると、押し間違いが増える"]},
+  {id:"error", title:"エラーメッセージの書き方", cue:"「エラーが発生しました」だけだと、何が困る？",
+   points:["何が起きたかを書く","なぜ起きたかを書く","どう直せばいいかを、具体的に書く"]}
 ];
+const RECALL_STEPS = [1,3,7,14,30];
 
-const BASICS_STEPS = ["予想する","読む","説明する","用語を思い出す","クイズ"];
-const REVIEW_KEY = "uiux-review-cards";
-const NOTES_KEY = "uiux-basics-notes";
-const STATS_KEY = "uiux-lab-stats";
-const REVIEW_INTERVALS = [1,3,7,14,30]; // 思い出せた回数に応じて、次の復習までの日数をのばす
-const DAY = 24*60*60*1000;
+
 
 /* ============ STATE ============ */
-let mode = "basics";
-let basics = {view:"intro", index:0, score:0, checked:false, selected:-1, reviewQueue:[], reviewPos:0, reviewShown:false};
-let quiz = {i:0, score:0, selected:-1};
+let mode = "quiz";
+let quiz = {i:0, score:0, answered:false, selected:-1, order:[...Array(QUIZ.length).keys()]};
 let socratic = {topic:null, messages:[], busy:false, done:false};
 let practice = {scenario:null, messages:[], busy:false};
-let stats = {quizBest:0, topicsExplored:[]};
-let explainTimer = null, reviewTimer = null;
+let stats = {quizBest:0, quizPlays:0, topicsExplored:[], recall:{}};
+let recall = {card:null, phase:"home", text:"", ticks:[]};
 
-/* localStorage はプライベートモード等で使えないことがあるので、失敗しても学習は続けられるようにする */
-const store = {
-  get(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } },
-  set(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
-};
-const pad2 = n => String(n).padStart(2,"0");
-const NET_ERROR = "通信エラーが発生しました。もう一度送信してみてください。";
-
-// 4択の選択肢。selected が -1 なら未回答
-function choicesHTML(item, selected){
-  const answered = selected >= 0;
-  return item.c.map((c,n)=>{
-    const cls = !answered ? "" : n === item.a ? " correct" : n === selected ? " wrong" : "";
-    return `<button class="choice${cls}" data-act="choose" data-idx="${n}" ${answered?"disabled":""}><span class="mark">${String.fromCharCode(65+n)}</span><span>${c}</span></button>`;
-  }).join("");
+/* best-effort persistence */
+async function loadStats(){
+  try{
+    let v = null;
+    if(window.storage){ const r = await window.storage.get("uiux-lab-stats", false); v = r && r.value; }
+    else v = localStorage.getItem("uiux-lab-stats");
+    if(v) stats = Object.assign(stats, JSON.parse(v));
+    if(!stats.recall) stats.recall = {};
+  }catch(e){ /* no persisted stats yet, or storage unavailable */ }
+}
+async function saveStats(){
+  try{
+    if(window.storage) await window.storage.set("uiux-lab-stats", JSON.stringify(stats), false);
+    else localStorage.setItem("uiux-lab-stats", JSON.stringify(stats));
+  }catch(e){}
 }
 
-// 「思い出せた／思い出せなかった」の自己評価ボタン
-function rateRowHTML(act, attrs, ngLabel, hidden){
-  return `
-    <div class="rate-row" ${hidden?"hidden":""}>
-      <button class="btn small" data-act="${act}" ${attrs} data-ok="1">思い出せた</button>
-      <button class="btn small secondary" data-act="${act}" ${attrs} data-ok="0">${ngLabel}</button>
-    </div>`;
-}
-
-function loadStats(){ stats = Object.assign(stats, store.get(STATS_KEY, {})); }
-function saveStats(){ store.set(STATS_KEY, stats); }
-
-/* ============ CLAUDE CALL（サーバー側の関数に中継してもらう。APIキーはブラウザに出さない） ============ */
+/* ============ CLAUDE CALL ============ */
 async function askMentor(kind, history){
   const res = await fetch("/api/chat", {
     method:"POST",
@@ -752,8 +656,8 @@ async function askMentor(kind, history){
     body: JSON.stringify({mode:kind, messages:history})
   });
   let data = null;
-  try{ data = await res.json(); }catch(e){ /* 本文が JSON でない場合 */ }
-  if(!res.ok || !data || data.error || typeof data.text !== "string") throw new Error((data && data.error) || NET_ERROR);
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok || !data || data.error || typeof data.text !== "string") throw new Error((data && data.error) || "network error");
   return data.text;
 }
 
@@ -764,335 +668,16 @@ document.getElementById("tabs").addEventListener("click", e=>{
   mode = btn.dataset.mode;
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t===btn));
   render();
-  window.scrollTo(0,0);
 });
 
-function stopMedia(){
-  if(explainTimer){ clearInterval(explainTimer); explainTimer = null; }
-  if(reviewTimer){ clearInterval(reviewTimer); reviewTimer = null; }
-  if(window.speechSynthesis) window.speechSynthesis.cancel();
-}
-
 function render(){
-  stopMedia();
   const main = document.getElementById("main");
-  if(mode === "basics") main.innerHTML = basicsHTML();
-  else if(mode === "quiz") main.innerHTML = quizHTML();
+  if(mode === "quiz") main.innerHTML = quizHTML();
   else if(mode === "socratic") main.innerHTML = socratic.topic ? chatHTML("socratic") : socraticHomeHTML();
+  else if(mode === "recall") main.innerHTML = recallHTML();
   else main.innerHTML = practice.scenario ? chatHTML("practice") : practiceHomeHTML();
-  // AIとの対話画面では、右下の質問ボタンが送信ボタンに重ならないように隠す
-  document.body.classList.toggle("in-chat", (mode==="socratic" && !!socratic.topic) || (mode==="practice" && !!practice.scenario));
-  renderDueBadge();
-  if(mode === "basics") afterBasicsRender();
-  else if(mode === "socratic" || mode === "practice"){
-    scrollThreadToBottom();
-    const input = document.getElementById("chat-input");
-    if(input) input.focus();
-  }
-}
-
-/* ============ BASICS（思い出す学び方） ============
-   星友啓『スタンフォード大学・オンラインハイスクール校長が教える 脳が一生忘れないインプット術』の
-   「思い出す（リトリーバル）」中心の学び方で進める。
-   各トピック: 前回の振り返り → 予想する（前リトリーバル） → 読む（見る＋聞く／記憶のためのメモ）
-              → 説明する（後リトリーバル） → 用語を思い出す（ワード・リトリーバル） → クイズ
-   思い出した用語は復習カードとして保存し、間をあけて「今日の復習」で思い出す。 */
-
-function getNotes(index){ return store.get(NOTES_KEY, {})[index] || {}; }
-function saveNote(index, field, value){
-  const all = store.get(NOTES_KEY, {});
-  all[index] = Object.assign({}, all[index], {[field]:value});
-  store.set(NOTES_KEY, all);
-}
-
-function go(view, index){
-  basics.view = view;
-  if(index != null) basics.index = index;
-  basics.checked = false;
-  basics.selected = -1;
-  render();
-  window.scrollTo(0,0);
-}
-
-// トピックの入口。2つ目以降は、まず前回の内容を思い出してから進む
-function enterTopic(index){
-  if(index >= BASICS.length) return go("result", index);
-  go(index === 0 ? "predict" : "warm", index);
-}
-
-function stepBar(step){
-  const t = BASICS[basics.index];
-  return `
-    <div class="quiz-meta"><span>TOPIC ${pad2(basics.index+1)} / ${pad2(BASICS.length)}</span><span>${t.title}</span></div>
-    <ol class="step-bar">${BASICS_STEPS.map((s,i)=>`<li class="${i<step?'done':i===step?'current':''}">${s}</li>`).join("")}</ol>`;
-}
-
-function recallCardHTML(k, id, withRating){
-  return `
-    <div class="recall-card" id="${id}">
-      <div class="recall-word">${k.word}</div>
-      <div class="recall-def" hidden>${k.def}</div>
-      <button class="link-btn" data-act="reveal" data-id="${id}">思い出したら、答えを見る</button>
-      ${withRating ? rateRowHTML("rate", `data-id="${id}"`, "忘れていた", true) : ""}
-    </div>`;
-}
-
-function basicsHTML(){
-  const v = basics.view, i = basics.index, t = BASICS[i];
-  const notes = getNotes(i);
-
-  if(v === "intro") return `
-    <div id="review-banner">${reviewBannerHTML()}</div>
-    <div class="eyebrow">BASICS</div>
-    <h2 class="panel-title">読むだけでは、記憶に残らない</h2>
-    <p class="lede">この講座は、星友啓『スタンフォード大学・オンラインハイスクール校長が教える 脳が一生忘れないインプット術』で紹介されている、<strong style="color:var(--ink)">「思い出す」ことを中心にした学び方</strong>で進みます。</p>
-    <div class="block block-ink">
-      <ul>
-        <li><strong>思い出すたびに記憶は強くなる</strong>：読み返すより、何も見ずに思い出そうとするほうが残る（リトリーバル）</li>
-        <li><strong>メモは記録ではなく、記憶のためにとる</strong>：書き写すのではなく、自分の言葉・自分の考え・疑問を書く</li>
-        <li><strong>見る＋聞く</strong>：文字を目で追いながら音声でも聞くと、頭に入りやすい</li>
-        <li><strong>一度で終わらせない</strong>：日をあけて、また思い出す</li>
-      </ul>
-    </div>
-    <div class="block">
-      <h3>各トピックの進め方</h3>
-      <ol>
-        <li><strong>予想する</strong>：見出しだけを見て、何が書かれていそうか考える</li>
-        <li><strong>読む</strong>：読み上げも使いながら読み、3種類のメモをとる</li>
-        <li><strong>説明する</strong>：本文を閉じて、30秒で心の中で説明してみる</li>
-        <li><strong>用語を思い出す</strong>：キーワードの意味を、答えを見ずに思い出す</li>
-        <li><strong>クイズ</strong>：場面で使えるか確かめる</li>
-      </ol>
-      <p class="note">思い出した用語は「復習カード」になり、1日後・3日後・7日後…とこの画面の「今日の復習」に出てきます。読んでいてわいた疑問は、右下の「質問する」からいつでも聞けます。</p>
-    </div>
-    <div class="block">
-      <h3>全${BASICS.length}トピック：カフェ「まめ日和」のアプリを立て直す</h3>
-      <ol>${BASICS.map(b=>`<li>${b.title}</li>`).join("")}</ol>
-    </div>
-    <button class="btn" data-act="start">はじめる</button>`;
-
-  if(v === "warm"){
-    const prev = BASICS[i-1];
-    return `
-      <div class="quiz-meta"><span>TOPIC ${pad2(i+1)} / ${pad2(BASICS.length)}</span><span>はじめる前に</span></div>
-      <div class="step-kicker">前回の振り返り</div>
-      <h2 class="panel-title">「${prev.title}」を思い出しましょう</h2>
-      <p class="lede">新しいことを学ぶ前に、前のトピックの用語を、答えを見る前に頭の中で言ってみてください。</p>
-      ${prev.keywords.map((k,n)=>recallCardHTML(k, `warm-${n}`, false)).join("")}
-      <div class="actions"><button class="btn" data-act="predict">次へ：${t.title}</button></div>`;
-  }
-
-  if(v === "predict") return `
-    ${stepBar(0)}
-    <div class="step-kicker">STEP 1　前リトリーバル</div>
-    <div class="topic-title">${t.title}</div>
-    <p class="lede">本文を読む前に、この見出しからどんなことが書かれていそうか予想しましょう。知っていることがあれば書き出してみてください。<strong style="color:var(--ink)">間違っていても大丈夫</strong>です。予想してから読むと、答え合わせのつもりで読めるので頭に残りやすくなります。</p>
-    <textarea class="field" data-note="predict" placeholder="例：〇〇のことが書かれていそう／〇〇という言葉は聞いたことがある">${escapeHTML(notes.predict || "")}</textarea>
-    <div class="actions" style="margin-top:16px;"><button class="btn" data-act="read">読んでみる</button></div>`;
-
-  if(v === "read"){
-    const canSpeak = "speechSynthesis" in window;
-    return `
-      ${stepBar(1)}
-      ${notes.predict && notes.predict.trim() ? `<div class="recap"><span class="step-kicker">あなたの予想</span><p>${escapeHTML(notes.predict)}</p></div>` : ""}
-      ${canSpeak ? `
-      <div class="listen-bar">
-        <button class="btn small secondary" id="listen-btn" data-act="listen">▶ 読み上げを聞きながら読む</button>
-        <label style="font-size:13px;">速さ
-          <select id="listen-rate">
-            <option value="1">1.0倍</option>
-            <option value="1.25">1.25倍</option>
-            <option value="1.5">1.5倍</option>
-          </select>
-        </label>
-        <span class="listen-note">速すぎると理解が追いつかないので、1.5倍速までにしています</span>
-      </div>` : ""}
-      <div class="topic-title">${t.title}</div>
-      <div class="reading" id="reading">${t.content}</div>
-      <div class="block" style="margin-top:26px;">
-        <div class="step-kicker">記憶のためのメモ</div>
-        <p>本文を書き写すのではなく、次の3つを書きましょう。<strong>できれば紙のノートに手書き</strong>がおすすめです。ここに書いた内容は、この端末に保存されます。</p>
-        <label class="field-label">① キーワードの意味を、自分の言葉で</label>
-        <textarea class="field" data-note="words" placeholder="例：シグニファイア＝「ここ押せるよ」と教えてくれる目じるし">${escapeHTML(notes.words || "")}</textarea>
-        <label class="field-label">② 自分の考え（賛成・反対、その理由、ほかとのつながり）</label>
-        <textarea class="field" data-note="thoughts" placeholder="例：いつも使っているアプリでも、カートは右上にある。だから…">${escapeHTML(notes.thoughts || "")}</textarea>
-        <label class="field-label">③ 疑問（わからないこと、もっと知りたいこと）</label>
-        <textarea class="field" data-note="questions" placeholder="例：パソコンの画面でも、フィッツの法則は同じように考えるの？">${escapeHTML(notes.questions || "")}</textarea>
-        <div class="actions" style="margin-top:10px;"><button class="btn small secondary" data-act="ask-note">③の疑問を質問ボットに聞く</button></div>
-      </div>
-      <div class="actions"><button class="btn" data-act="explain">読み終えた → 何も見ずに説明する</button></div>`;
-  }
-
-  if(v === "explain") return `
-    ${stepBar(2)}
-    <div class="step-kicker">STEP 3　後リトリーバル</div>
-    <h2 class="panel-title">本文は閉じました。目を閉じて、いま読んだ内容を心の中で説明してみましょう</h2>
-    <p class="lede">友だちに教えるつもりで、30秒。<strong style="color:var(--ink)">まめ日和で湊さんが何をしたか</strong>も入れて説明できると、記憶に残りやすくなります。思い出せないところがあっても大丈夫。思い出そうとすること自体が記憶を強くします。</p>
-    <div class="timer-row">
-      <button class="btn small secondary" id="timer-btn" data-act="timer">30秒タイマーをスタート</button>
-      <span class="timer" id="timer">0:30</span>
-    </div>
-    <textarea class="field" data-note="explain" placeholder="説明した内容を書き出してもOK（任意）">${escapeHTML(notes.explain || "")}</textarea>
-    ${basics.checked ? `
-    <div id="explain-check" style="margin-top:22px;">
-      <div class="explain"><b>答え合わせ</b>本文と照らし合わせましょう。説明できなかったところが、まだ覚えていないところです。そこを重点的に読み直してください。</div>
-      <details class="reread" open><summary>本文を開く</summary><div class="reading">${t.content}</div></details>
-      <h3 class="panel-title" style="font-size:17px;">説明してみて、どうでしたか？</h3>
-      <div class="actions">
-        <button class="btn" data-act="words">だいたい説明できた → 用語を思い出す</button>
-        <button class="btn secondary" data-act="explain">あまりできなかった → もう一度説明する</button>
-      </div>
-    </div>` : `<div class="actions" style="margin-top:16px;"><button class="btn" data-act="check-explain">答え合わせをする</button></div>`}`;
-
-  if(v === "words") return `
-    ${stepBar(3)}
-    <div class="step-kicker">STEP 4　ワード・リトリーバル</div>
-    <h2 class="panel-title">キーワードの意味を、答えを見ずに思い出しましょう</h2>
-    <p class="lede">頭の中で言えたら答えを見て、思い出せたかどうかを正直に選んでください。選んだ用語は復習カードになり、日をあけて「今日の復習」に出てきます。</p>
-    ${t.keywords.map((k,n)=>recallCardHTML(k, `word-${i}-${n}`, true)).join("")}
-    <div class="actions" style="margin-top:8px;"><button class="btn" data-act="quiz">確認クイズへ</button></div>`;
-
-  if(v === "quiz"){
-    const q = t.question, answered = basics.selected >= 0;
-    const isLast = i + 1 >= BASICS.length;
-    return `
-      ${stepBar(4)}
-      <div class="step-kicker">STEP 5　場面で使えるか確かめる</div>
-      <div class="quiz-card">
-        <p class="quiz-q">${q.q}</p>
-        ${choicesHTML(q, basics.selected)}
-        ${answered ? `<div class="explain"><b>${basics.selected === q.a ? "正解" : "不正解"}　解説</b>${q.e}</div>
-        <div class="quiz-footer"><button class="btn" data-act="next-topic">${isLast ? "結果を見る" : "次のトピックへ"}</button></div>` : ""}
-      </div>`;
-  }
-
-  if(v === "result"){
-    const all = store.get(NOTES_KEY, {});
-    const qs = BASICS.map((b,n)=>({title:b.title, n, q:((all[n] && all[n].questions) || "").trim()})).filter(x=>x.q);
-    const total = BASICS.reduce((n,b)=>n+b.keywords.length, 0);
-    return `
-      <div class="quiz-done">
-        <div class="eyebrow">RESULT</div>
-        <p class="lede" style="margin-bottom:0;">まめ日和のストーリーはここまでです</p>
-        <div class="score">${basics.score}<span style="font-size:20px;color:var(--ink-faint);"> / ${BASICS.length}</span></div>
-      </div>
-      <div class="block block-ink">
-        <div class="step-kicker">次にやること</div>
-        <p>${total}個の用語が復習カードになりました。<strong>明日、この「基礎知識」タブの「今日の復習」</strong>から思い出しましょう。忘れかけたころに思い出すほど、記憶は長持ちします。</p>
-        <p>学んだ原則は、クイズ式・ソクラテス式・疑似実践でさらに使ってみましょう。</p>
-      </div>
-      ${qs.length ? `
-      <div class="block">
-        <h3>あなたが書いた疑問</h3>
-        ${qs.map(x=>`<div class="recall-card"><div class="step-kicker">${x.title}</div><p style="white-space:pre-wrap;">${escapeHTML(x.q)}</p><button class="btn small secondary" data-act="ask-q" data-n="${x.n}">質問ボットに聞く</button></div>`).join("")}
-        <p class="note">疑問をそのままにせず、質問して解消しておきましょう。</p>
-      </div>` : ""}
-      <div class="actions"><button class="btn" data-act="home">基礎知識のトップに戻る</button></div>`;
-  }
-
-  if(v === "review"){
-    const q = basics.reviewQueue;
-    if(basics.reviewPos >= q.length) return `
-      <div class="quiz-done">
-        <div class="eyebrow">REVIEW</div>
-        <h2 class="panel-title">おつかれさまでした</h2>
-        <p class="lede">今日の復習は完了です。思い出せた用語は、次はもっと間をあけて出てきます。</p>
-        <button class="btn" data-act="home">基礎知識のトップに戻る</button>
-      </div>`;
-    const c = q[basics.reviewPos], shown = basics.reviewShown;
-    return `
-      <div class="quiz-meta"><span>今日の復習</span><span>${basics.reviewPos+1} / ${q.length}</span></div>
-      <div class="block review-card">
-        <div class="step-kicker">5秒リトリーバル</div>
-        <div class="recall-word">${c.word}</div>
-        ${shown ? `
-          <div class="recall-def">${c.def}</div>
-          ${rateRowHTML("review-rate", "", "思い出せなかった", false)}` : `
-          <p class="lede" style="margin:0;">この用語の意味を、頭の中で言ってみましょう</p>
-          <div class="countdown" id="countdown">5</div>
-          <button class="link-btn" data-act="review-reveal">答えを見る</button>`}
-      </div>`;
-  }
-  return "";
-}
-
-function afterBasicsRender(){
-  // 今日の復習：5秒たったら答えを出す
-  if(basics.view === "review" && !basics.reviewShown && basics.reviewPos < basics.reviewQueue.length){
-    let left = 5;
-    reviewTimer = setInterval(()=>{
-      left--;
-      const cd = document.getElementById("countdown");
-      if(!cd){ clearInterval(reviewTimer); reviewTimer = null; return; }
-      if(left <= 0){ basics.reviewShown = true; render(); }
-      else cd.textContent = left;
-    }, 1000);
-  }
-}
-
-function toggleListen(){
-  const synth = window.speechSynthesis;
-  const btn = document.getElementById("listen-btn");
-  if(synth.speaking){
-    synth.cancel();
-    btn.textContent = "▶ 読み上げを聞きながら読む";
-    return;
-  }
-  const u = new SpeechSynthesisUtterance(document.getElementById("reading").innerText);
-  u.lang = "ja-JP";
-  u.rate = parseFloat(document.getElementById("listen-rate").value) || 1;
-  const voice = synth.getVoices().find(v=>v.lang && v.lang.startsWith("ja"));
-  if(voice) u.voice = voice;
-  u.onend = ()=>{ const b = document.getElementById("listen-btn"); if(b) b.textContent = "▶ 読み上げを聞きながら読む"; };
-  synth.speak(u);
-  btn.textContent = "■ 読み上げを止める";
-}
-
-function startExplainTimer(){
-  if(explainTimer) clearInterval(explainTimer);
-  let left = 30;
-  const disp = document.getElementById("timer");
-  document.getElementById("timer-btn").textContent = "もう一度30秒";
-  disp.textContent = "0:30";
-  explainTimer = setInterval(()=>{
-    left--;
-    disp.textContent = `0:${pad2(Math.max(left,0))}`;
-    if(left <= 0){ clearInterval(explainTimer); explainTimer = null; disp.textContent = "終了"; }
-  }, 1000);
-}
-
-// 復習カード。思い出せた回数（stage）に応じて次の復習日をのばし、思い出せなければ翌日に戻す
-function addReviewCard(id, k, remembered){
-  const cards = store.get(REVIEW_KEY, {});
-  const prev = cards[id];
-  const stage = remembered ? (prev ? Math.min(prev.stage + 1, REVIEW_INTERVALS.length - 1) : 0) : 0;
-  cards[id] = {word:k.word, def:k.def, stage, due:Date.now() + REVIEW_INTERVALS[stage]*DAY};
-  store.set(REVIEW_KEY, cards);
-}
-
-function dueReviewCards(){
-  const cards = store.get(REVIEW_KEY, {}), now = Date.now();
-  return Object.keys(cards).filter(id=>cards[id].due <= now).map(id=>Object.assign({id}, cards[id]));
-}
-
-function reviewBannerHTML(){
-  const cards = store.get(REVIEW_KEY, {}), ids = Object.keys(cards);
-  if(!ids.length) return "";
-  const due = dueReviewCards();
-  if(due.length) return `
-    <button class="review-banner" data-act="review-start">
-      <span class="count">${due.length}</span>
-      <span class="txt"><strong>今日の復習</strong>前に学んだ用語を、1語5秒で思い出しましょう</span>
-      <span class="go">はじめる →</span>
-    </button>`;
-  const d = new Date(Math.min(...ids.map(id=>cards[id].due)));
-  return `<div class="review-banner idle"><span class="txt"><strong>今日の復習はありません</strong>次の復習は ${d.getMonth()+1}月${d.getDate()}日です</span></div>`;
-}
-
-function renderDueBadge(){
-  const tab = document.querySelector('.tab[data-mode="basics"]');
-  const n = dueReviewCards().length;
-  tab.innerHTML = `基礎知識${n ? `<span class="due" aria-label="今日の復習 ${n}語">${n}</span>` : ""}`;
+  attachHandlers();
+  scrollThreadToBottom();
 }
 
 /* ============ QUIZ ============ */
@@ -1105,27 +690,43 @@ function quizHTML(){
         <p class="lede" style="margin-bottom:0;">全${QUIZ.length}問が終わりました</p>
         <div class="score">${quiz.score}<span style="font-size:20px;color:var(--ink-faint);"> / ${QUIZ.length}</span></div>
         <p class="lede">正答率 ${pct}%${stats.quizBest ? ` ・ 自己ベスト ${stats.quizBest}問` : ""}</p>
-        <button class="btn" data-act="restart">もう一度挑戦する</button>
+        <button class="btn" id="restart">もう一度挑戦する</button>
       </div>`;
   }
-  const item = QUIZ[quiz.i], answered = quiz.selected >= 0;
-  const dots = QUIZ.map((_,idx)=>`<span class="${idx<quiz.i?'done':idx===quiz.i?'now':''}"></span>`).join("");
+  const qi = quiz.order[quiz.i];
+  const item = QUIZ[qi];
+  const choices = item.c.map((c,idx)=>{
+    let cls = "choice";
+    if(quiz.answered){
+      if(idx === item.a) cls += " correct";
+      else if(idx === quiz.selected) cls += " wrong";
+    }
+    return `<button class="${cls}" data-idx="${idx}" ${quiz.answered?"disabled":""}>
+      <span class="mark">${String.fromCharCode(65+idx)}</span><span>${c}</span>
+    </button>`;
+  }).join("");
   return `
     <div class="quiz-meta">
-      <span>Q ${pad2(quiz.i+1)} / ${QUIZ.length}</span>
-      <div class="quiz-progress">${dots}</div>
+      <span class="quiz-count">Q ${quiz.i+1} / ${QUIZ.length}</span>
+      <div class="quiz-progress"><i style="width:${Math.round((quiz.i/QUIZ.length)*100)}%"></i></div>
     </div>
     <div class="quiz-card">
       <p class="quiz-q">${item.q}</p>
-      ${choicesHTML(item, quiz.selected)}
-      ${answered ? `<div class="explain"><b>解説</b>${item.e}</div>
-        <div class="quiz-footer"><button class="btn" data-act="next-q">${quiz.i===QUIZ.length-1?"結果を見る":"次の問題へ"}</button></div>` : ""}
+      ${choices}
+      ${quiz.answered ? `<div class="explain"><b>解説</b>${item.e}</div>
+        <div class="quiz-footer"><button class="btn" id="next-q">${quiz.i===QUIZ.length-1?"結果を見る":"次の問題へ"}</button></div>` : ""}
     </div>`;
 }
 
+const ICONS = {
+  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>'
+};
+const CHIP_TONES = ["","t","r","","t","r"];
 /* ============ SOCRATIC ============ */
 function socraticHomeHTML(){
-  const chips = SOCRATIC_TOPICS.map(t=>`<button class="chip" data-act="topic" data-id="${t.id}">${t.label}${stats.topicsExplored.includes(t.id)?" ✓":""}</button>`).join("");
+  const chips = SOCRATIC_TOPICS.map((t,i)=>`<button class="chip" data-topic="${t.id}"><span class="ic ${CHIP_TONES[i%6]}">${ICONS.spark}</span><span>${t.label}</span>${stats.topicsExplored.includes(t.id)?'<span class="done">完了</span>':""}</button>`).join("");
   return `
     <div class="eyebrow">SOCRATIC MODE</div>
     <h2 class="panel-title">対話しながら、自分の言葉で原則にたどり着く</h2>
@@ -1135,15 +736,16 @@ function socraticHomeHTML(){
 
 /* ============ PRACTICE ============ */
 function practiceHomeHTML(){
-  const cards = PRACTICE_SCENARIOS.map(s=>`
-    <div class="scenario-card" data-act="scenario" data-id="${s.id}">
-      <h3>${s.title}</h3><p>${s.brief.slice(0,42)}…</p>
+  const cards = PRACTICE_SCENARIOS.map((s,i)=>`
+    <div class="scenario-card" data-scenario="${s.id}">
+      <span class="ic ${CHIP_TONES[(i+1)%6]}">${ICONS.doc}</span>
+      <div><h3>${s.title}</h3><p>${s.brief.slice(0,42)}…</p></div>
     </div>`).join("");
   return `
     <div class="eyebrow">PRACTICE MODE</div>
     <h2 class="panel-title">実務シナリオで判断力を鍛える</h2>
     <p class="lede">現場でよくある状況をシミュレーションします。あなたの提案に対して、シニアデザイナー役からレビューが返ってきます。</p>
-    ${cards}`;
+    <div class="scenario-list">${cards}</div>`;
 }
 
 /* ============ CHAT (shared by socratic & practice) ============ */
@@ -1159,15 +761,95 @@ function chatHTML(kind){
   const typing = st.busy ? `<div class="msg mentor"><div class="who">${kind==="socratic"?"メンター":"シニアデザイナー"}</div><div class="bubble"><span class="typing"><span></span><span></span><span></span></span></div></div>` : "";
   const doneState = kind==="socratic" && socratic.done;
   return `
-    <button class="back-link" data-act="back">← テーマ一覧に戻る</button>
+    <button class="back-link" id="back-home">${ICONS.back}テーマ一覧に戻る</button>
     <div class="eyebrow">${kind==="socratic"?"SOCRATIC MODE":"PRACTICE MODE"}</div>
     <h2 class="panel-title">${title}</h2>
     <div class="chat-thread" id="thread">${msgs}${typing}</div>
-    ${doneState ? `<button class="btn secondary" data-act="back">別のテーマを試す</button>` :
+    ${doneState ? `<button class="btn secondary" id="another-topic">別のテーマを試す</button>` :
     `<div class="composer">
       <textarea id="chat-input" placeholder="考えを書いてみてください…" ${st.busy?"disabled":""}></textarea>
-      <button class="btn" data-act="send" ${st.busy?"disabled":""}>送る</button>
+      <button class="btn" id="chat-send" ${st.busy?"disabled":""}>送る</button>
     </div>`}`;
+}
+
+/* ============ RECALL ============ */
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(str,n){ const [y,m,d]=str.split("-").map(Number); const t=new Date(y,m-1,d+n); return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0"); }
+function daysUntil(str){ const [y,m,d]=str.split("-").map(Number); const [y2,m2,d2]=todayStr().split("-").map(Number); return Math.round((new Date(y,m-1,d)-new Date(y2,m2-1,d2))/86400000); }
+function recallBadge(id){
+  const r = stats.recall[id];
+  if(!r) return '<span class="badge">はじめて</span>';
+  const n = daysUntil(r.due);
+  if(n<=0) return '<span class="badge due">今日、思い出す</span>';
+  return '<span class="badge ok">あと'+n+'日</span>';
+}
+function flowHTML(phase){
+  const st = [["read","① 読む"],["write","② 隠して思い出す"],["check","③ 答え合わせ"],["plan","④ 日をあけて再挑戦"]];
+  const idx = {study:0, write:1, check:2, done:3}[phase];
+  return '<div class="flow">'+st.map((x,i)=>'<span class="s'+(i===idx?' on':'')+'">'+x[1]+'</span>').join('<i>›</i>')+'</div>';
+}
+function recallHTML(){
+  const ph = recall.phase;
+  if(ph==="home"){
+    const due = RECALL_CARDS.filter(c=>stats.recall[c.id] && daysUntil(stats.recall[c.id].due)<=0);
+    const rest = RECALL_CARDS.filter(c=>!due.includes(c));
+    const row = c=>`<button class="chip" data-recall="${c.id}"><span class="ic ${CHIP_TONES[RECALL_CARDS.indexOf(c)%6]}">${ICONS.spark}</span><span>${c.title}</span>${recallBadge(c.id)}</button>`;
+    return `
+      <div class="eyebrow">RECALL MODE</div>
+      <h2 class="panel-title">読み返すより、思い出す</h2>
+      <p class="lede">覚えるいちばん確かな方法は、見ないで思い出そうとすることです。思い出せなかった部分こそ、記憶が強くなる場所です。読む → 隠す → 書き出す → 答え合わせ、の順で進めます。</p>
+      ${due.length?`<div class="sec-label">今日、思い出すもの（${due.length}）</div><div class="topic-grid">${due.map(row).join("")}</div>`:""}
+      <div class="sec-label">${due.length?"そのほか":"テーマを選ぶ"}</div>
+      <div class="topic-grid">${rest.map(row).join("")}</div>`;
+  }
+  const c = RECALL_CARDS.find(x=>x.id===recall.card);
+  const back = '<button class="back-link" id="recall-back">'+ICONS.back+'テーマ一覧に戻る</button>';
+  if(ph==="study"){
+    return back + flowHTML("study") + `
+      <div class="recall-card">
+        <h3>${c.title}</h3>
+        <p class="cue">${c.cue}</p>
+        <ul class="points">${c.points.map((t,i)=>`<li><span class="dot">${i+1}</span><span>${t}</span></li>`).join("")}</ul>
+      </div>
+      <p class="hint">ひと通り読んだら、次の画面で隠します。丸暗記しなくて大丈夫です。</p>
+      <div class="btn-row"><button class="btn" id="recall-hide">隠して思い出す</button></div>`;
+  }
+  if(ph==="write"){
+    return back + flowHTML("write") + `
+      <div class="recall-card">
+        <h3>${c.title}</h3>
+        <p class="cue">${c.cue}</p>
+        <textarea class="recall-area" id="recall-text" placeholder="見ないで、覚えていることを自分の言葉で書き出してください。あいまいでも、途中でも大丈夫です。">${escapeHTML(recall.text)}</textarea>
+        <p class="hint">思い出せない部分が出てきたら、ここが記憶を強くするチャンスです。少し粘ってから、答え合わせに進みましょう。</p>
+      </div>
+      <div class="btn-row"><button class="btn secondary" id="recall-peek">もう一度読む</button><button class="btn" id="recall-check">答え合わせをする</button></div>`;
+  }
+  if(ph==="check"){
+    return back + flowHTML("check") + `
+      <div class="recall-card">
+        <h3>${c.title}</h3>
+        <div class="sec-label" style="margin-top:6px;">あなたが書いたこと</div>
+        <div class="mine">${recall.text.trim()?escapeHTML(recall.text):"（何も書かれていません）"}</div>
+        <div class="sec-label" style="margin-top:6px;">書けていたものにチェックを入れてください</div>
+        <ul class="points">${c.points.map((t,i)=>`<li><label><input type="checkbox" data-tick="${i}" ${recall.ticks[i]?"checked":""}><span>${t}</span></label></li>`).join("")}</ul>
+      </div>
+      <div class="btn-row"><button class="btn" id="recall-finish">結果を記録する</button></div>`;
+  }
+  /* done */
+  const n = recall.ticks.filter(Boolean).length, tot = c.points.length;
+  const r = stats.recall[c.id];
+  const msg = n===tot ? "全部思い出せました。次は少し間をあけて、もう一度試します。"
+    : n>0 ? "思い出せなかった部分が、次に強くなる部分です。"
+    : "思い出せなくて大丈夫です。もう一度読んで、すぐ書き出し直してみましょう。";
+  return back + flowHTML("done") + `
+    <div class="recall-card" style="text-align:center;">
+      <div class="eyebrow">RESULT</div>
+      <div class="result-num">${n} / ${tot}</div>
+      <p class="lede" style="margin-bottom:18px;">${msg}</p>
+      <ul class="points" style="text-align:left;">${c.points.map((t,i)=>`<li class="${recall.ticks[i]?"hit":"miss"}"><span class="dot">${recall.ticks[i]?"○":"×"}</span><span>${t}</span></li>`).join("")}</ul>
+      <p class="hint" style="margin-top:20px;">次に思い出す日：<b>${r?r.due.replace(/-/g,"/"):""}</b>（${r?daysUntil(r.due):0}日後）</p>
+    </div>
+    <div class="btn-row"><button class="btn secondary" id="recall-again">もう一度書き出す</button><button class="btn" id="recall-back2">テーマ一覧へ</button></div>`;
 }
 
 function escapeHTML(s){
@@ -1179,105 +861,106 @@ function scrollThreadToBottom(){
   window.scrollTo({top: document.body.scrollHeight, behavior: "instant"});
 }
 
-/* ============ 操作（すべてのモードのクリックを data-act で受ける） ============ */
-const ACTIONS = {
-  // 基礎知識
-  start(){ basics.score = 0; enterTopic(0); },
-  predict(){ go("predict"); },
-  read(){ go("read"); },
-  explain(){ go("explain"); },
-  words(){ go("words"); },
-  quiz(){ go("quiz"); },
-  home(){ go("intro"); },
-  listen: toggleListen,
-  timer: startExplainTimer,
-  "check-explain"(){
-    basics.checked = true;
-    render();
-    document.getElementById("explain-check").scrollIntoView({behavior:"smooth", block:"start"});
-  },
-  reveal(el){
-    const card = document.getElementById(el.dataset.id);
-    card.querySelector(".recall-def").hidden = false;
-    el.hidden = true;
-    const rate = card.querySelector(".rate-row");
-    if(rate) rate.hidden = false;
-  },
-  rate(el){
-    const [, index, n] = el.dataset.id.split("-").map(Number);
-    const ok = el.dataset.ok === "1";
-    addReviewCard(`${index}-${n}`, BASICS[index].keywords[n], ok);
-    el.parentElement.innerHTML = `<span class="rate-result ${ok?"":"ng"}">${ok ? "✓ 思い出せた" : "もう一度読んで、覚え直そう"}</span>`;
-  },
-  "next-topic"(){ enterTopic(basics.index + 1); },
-  "review-start"(){
-    Object.assign(basics, {reviewQueue:dueReviewCards(), reviewPos:0, reviewShown:false});
-    go("review");
-  },
-  "review-reveal"(){ basics.reviewShown = true; render(); },
-  "review-rate"(el){
-    const c = basics.reviewQueue[basics.reviewPos];
-    addReviewCard(c.id, c, el.dataset.ok === "1");
-    basics.reviewPos++;
-    basics.reviewShown = false;
-    render();
-  },
-  "ask-note"(){ openBot((getNotes(basics.index).questions || "").trim()); },
-  "ask-q"(el){ openBot((getNotes(Number(el.dataset.n)).questions || "").trim()); },
-
-  // 4択（基礎知識の確認クイズ・クイズ式で共通）
-  choose(el){
-    const st = mode === "quiz" ? quiz : basics;
-    const item = mode === "quiz" ? QUIZ[quiz.i] : BASICS[basics.index].question;
-    if(st.selected >= 0) return;
-    st.selected = Number(el.dataset.idx);
-    if(st.selected === item.a) st.score++;
-    render();
-  },
-
-  // クイズ式
-  "next-q"(){
-    quiz.i++;
-    quiz.selected = -1;
-    if(quiz.i >= QUIZ.length && quiz.score > stats.quizBest){
-      stats.quizBest = quiz.score;
+/* ============ EVENT WIRING ============ */
+function attachHandlers(){
+  // quiz
+  document.querySelectorAll(".choice").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(quiz.answered) return;
+      quiz.answered = true;
+      quiz.selected = Number(b.dataset.idx);
+      const qi = quiz.order[quiz.i];
+      if(quiz.selected === QUIZ[qi].a) quiz.score++;
+      render();
+    });
+  });
+  const nextQ = document.getElementById("next-q");
+  if(nextQ) nextQ.addEventListener("click", ()=>{
+    quiz.i++; quiz.answered=false; quiz.selected=-1;
+    if(quiz.i >= QUIZ.length){
+      stats.quizPlays++;
+      if(quiz.score > stats.quizBest) stats.quizBest = quiz.score;
       saveStats();
     }
     render();
-  },
-  restart(){ quiz = {i:0, score:0, selected:-1}; render(); },
+  });
+  const restart = document.getElementById("restart");
+  if(restart) restart.addEventListener("click", ()=>{
+    quiz = {i:0, score:0, answered:false, selected:-1, order:[...Array(QUIZ.length).keys()]};
+    render();
+  });
 
-  // ソクラテス式・疑似実践
-  topic(el){
-    const t = SOCRATIC_TOPICS.find(t=>t.id===el.dataset.id);
-    socratic = {topic:t.id, messages:[{role:"assistant", text:t.opener}], busy:false, done:false};
-    render();
-  },
-  scenario(el){
-    const s = PRACTICE_SCENARIOS.find(s=>s.id===el.dataset.id);
-    practice = {scenario:s.id, messages:[{role:"assistant", text:s.brief}], busy:false};
-    render();
-  },
-  back(){
-    if(mode === "socratic") socratic.topic = null; else practice.scenario = null;
-    render();
-  },
-  send(){ sendChat(); }
-};
+  // socratic topic chips
+  document.querySelectorAll(".chip[data-topic]").forEach(c=>{
+    c.addEventListener("click", ()=>{
+      const t = SOCRATIC_TOPICS.find(t=>t.id===c.dataset.topic);
+      socratic = {topic:t.id, messages:[{role:"assistant", text:t.opener}], busy:false, done:false};
+      render();
+    });
+  });
 
-const mainEl = document.getElementById("main");
-mainEl.addEventListener("click", e=>{
-  const el = e.target.closest("[data-act]");
-  if(el && ACTIONS[el.dataset.act]) ACTIONS[el.dataset.act](el);
-});
-mainEl.addEventListener("keydown", e=>{
-  if(e.target.id === "chat-input" && e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); sendChat(); }
-});
-// メモはその場でこの端末に保存する
-mainEl.addEventListener("input", e=>{
-  const field = e.target.dataset && e.target.dataset.note;
-  if(mode === "basics" && field) saveNote(basics.index, field, e.target.value);
-});
+  // practice scenario cards
+  document.querySelectorAll(".scenario-card").forEach(c=>{
+    c.addEventListener("click", ()=>{
+      const s = PRACTICE_SCENARIOS.find(s=>s.id===c.dataset.scenario);
+      practice = {scenario:s.id, messages:[{role:"assistant", text:s.brief}], busy:false};
+      render();
+    });
+  });
+
+  // recall
+  const setPhase = (ph)=>{ recall.phase = ph; render(); window.scrollTo({top:0, behavior:"instant"}); };
+  document.querySelectorAll("[data-recall]").forEach(b=>b.addEventListener("click", ()=>{
+    recall = {card:b.dataset.recall, phase:"study", text:"", ticks:[]}; setPhase("study");
+  }));
+  const rb = document.getElementById("recall-back");
+  if(rb) rb.addEventListener("click", ()=>{ recall = {card:null, phase:"home", text:"", ticks:[]}; render(); });
+  const rb2 = document.getElementById("recall-back2");
+  if(rb2) rb2.addEventListener("click", ()=>{ recall = {card:null, phase:"home", text:"", ticks:[]}; render(); });
+  const rh = document.getElementById("recall-hide");
+  if(rh) rh.addEventListener("click", ()=>setPhase("write"));
+  const rp = document.getElementById("recall-peek");
+  if(rp) rp.addEventListener("click", ()=>{ recall.text = document.getElementById("recall-text").value; setPhase("study"); });
+  const rt = document.getElementById("recall-text");
+  if(rt){ rt.addEventListener("input", ()=>{ recall.text = rt.value; }); rt.focus(); }
+  const rc = document.getElementById("recall-check");
+  if(rc) rc.addEventListener("click", ()=>{ recall.text = document.getElementById("recall-text").value; recall.ticks = RECALL_CARDS.find(x=>x.id===recall.card).points.map(()=>false); setPhase("check"); });
+  document.querySelectorAll("[data-tick]").forEach(cb=>cb.addEventListener("change", ()=>{ recall.ticks[Number(cb.dataset.tick)] = cb.checked; }));
+  const rf = document.getElementById("recall-finish");
+  if(rf) rf.addEventListener("click", ()=>{
+    const c = RECALL_CARDS.find(x=>x.id===recall.card);
+    const n = recall.ticks.filter(Boolean).length;
+    const prev = stats.recall[c.id] || {box:-1};
+    let box = n===c.points.length ? Math.min(prev.box+1, RECALL_STEPS.length-1) : n>0 ? Math.max(prev.box,0) : 0;
+    if(box<0) box = 0;
+    stats.recall[c.id] = {box, due:addDays(todayStr(), RECALL_STEPS[box]), last:todayStr()};
+    saveStats(); setPhase("done");
+  });
+  const ra = document.getElementById("recall-again");
+  if(ra) ra.addEventListener("click", ()=>{ recall.text=""; recall.ticks=[]; setPhase("write"); });
+
+  // back to home
+  const back = document.getElementById("back-home");
+  if(back) back.addEventListener("click", ()=>{
+    if(mode==="socratic") socratic.topic = null; else practice.scenario = null;
+    render();
+  });
+
+  const another = document.getElementById("another-topic");
+  if(another) another.addEventListener("click", ()=>{ socratic.topic = null; render(); });
+
+  // chat send
+  const sendBtn = document.getElementById("chat-send");
+  const input = document.getElementById("chat-input");
+  if(sendBtn && input){
+    const send = ()=> sendChat();
+    sendBtn.addEventListener("click", send);
+    input.addEventListener("keydown", e=>{
+      if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send(); }
+    });
+    input.focus();
+  }
+}
 
 async function sendChat(){
   const input = document.getElementById("chat-input");
@@ -1288,12 +971,11 @@ async function sendChat(){
   st.busy = true;
   render();
 
-  const kind = mode;
-  const apiHistory = st.messages.filter(m=>!m.error).map(m=>({role: m.role === "user" ? "user" : "assistant", content: m.text}));
+    const apiHistory = st.messages.map(m=>({role: m.role === "user" ? "user" : "assistant", content: m.text}));
 
   try{
-    const reply = await askMentor(kind, apiHistory);
-    const isSummary = kind === "socratic" && reply.startsWith("まとめ：");
+    const reply = await askMentor(mode, apiHistory);
+    const isSummary = mode === "socratic" && reply.startsWith("まとめ：");
     st.messages.push({role:"assistant", text:reply, summary:isSummary});
     if(isSummary){
       socratic.done = true;
@@ -1303,76 +985,17 @@ async function sendChat(){
       }
     }
   }catch(err){
-    st.messages.push({role:"assistant", text:err.message, error:true});
+    st.messages.push({role:"assistant", text:"通信エラーが発生しました。もう一度送信してみてください。", error:true});
   }
   st.busy = false;
-  if(mode === kind) render();
-}
-
-/* ============ 質問ボット ============ */
-let botHistory = [];
-let botBusy = false;
-const botPanel = document.getElementById("bot-panel");
-const botText = document.getElementById("bot-text");
-
-function openBot(prefill){
-  botPanel.classList.add("open");
-  if(prefill) botText.value = prefill;
-  setTimeout(()=>botText.focus(), 50);
-}
-document.getElementById("bot-fab").addEventListener("click", ()=>{
-  if(botPanel.classList.contains("open")) botPanel.classList.remove("open");
-  else openBot();
-});
-document.getElementById("bot-close").addEventListener("click", ()=>botPanel.classList.remove("open"));
-document.getElementById("bot-send").addEventListener("click", ()=>sendBot());
-botText.addEventListener("keydown", e=>{
-  if(e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); sendBot(); }
-});
-document.getElementById("bot-msgs").addEventListener("click", e=>{
-  const chip = e.target.closest("[data-ask]");
-  if(chip){ botText.value = chip.dataset.ask; sendBot(); }
-});
-
-function appendBot(cls, text){
-  const box = document.getElementById("bot-msgs");
-  const empty = box.querySelector(".bot-empty");
-  if(empty) empty.remove();
-  const div = document.createElement("div");
-  div.className = "bot-msg " + cls;
-  div.textContent = text;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  return div;
-}
-
-async function sendBot(){
-  const text = botText.value.trim();
-  if(!text || botBusy) return;
-  botText.value = "";
-  appendBot("user", text);
-  botHistory.push({role:"user", content:text});
-  botBusy = true;
-  document.getElementById("bot-send").disabled = true;
-  const pending = appendBot("bot pending", "考え中…");
-  try{
-    const answer = await askMentor("qa", botHistory);
-    pending.textContent = answer;
-    pending.className = "bot-msg bot";
-    botHistory.push({role:"assistant", content:answer});
-  }catch(err){
-    pending.textContent = err.message;
-    pending.className = "bot-msg bot error";
-    botHistory.pop(); // 答えられなかった質問は履歴に残さない（次の送信で user が連続しないように）
-  }
-  botBusy = false;
-  document.getElementById("bot-send").disabled = false;
-  document.getElementById("bot-msgs").scrollTop = document.getElementById("bot-msgs").scrollHeight;
+  render();
 }
 
 /* ============ INIT ============ */
-loadStats();
-render();
+(async function init(){
+  await loadStats();
+  render();
+})();
 </script>
 </body>
 </html>
