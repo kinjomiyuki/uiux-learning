@@ -1,0 +1,12 @@
+{
+  "name": "uiux-learning",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Static site - no build needed'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.72.1",
+    "@netlify/blobs": "^11.1.0"
+  }
+}
