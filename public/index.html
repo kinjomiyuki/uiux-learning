@@ -566,6 +566,42 @@
   .dr-review li{display:flex; gap:12px; padding:10px 4px; border-top:1px solid rgba(35,35,55,.12); font-size:14px;}
   .dr-review .pt{font-family:var(--sans); font-weight:700; color:var(--violet); min-width:3em;}
   @media (max-width:560px){ .dr-ab{grid-template-columns:1fr;} }
+
+  /* ===== v4: 読みやすさ(コントラスト) + スマホ表示の改善 ===== */
+  :root{
+    --ink-soft:#4A4863;      /* 補助テキスト: すりガラス上でも4.5:1以上 */
+    --ink-faint:#5A5872;
+    --violet-text:#5B3FD0;   /* 文字用の紫(背景が明るい場所) */
+  }
+  .eyebrow, .dr-panel .tag, .dr-pt, .dr-review .pt{color:var(--violet-text);}
+  .eyebrow{background:rgba(124,92,240,.14);}
+  .brand-sub, .lede, .tagline{color:var(--ink-soft);}
+  /* 紫ボタン・自分の吹き出し: 白文字が4.5:1を満たす濃さに */
+  .btn:not(.secondary), .msg.user .bubble{
+    background:linear-gradient(180deg, rgba(255,255,255,.32) 0%, rgba(255,255,255,0) 52%), linear-gradient(135deg, #7A5AF0, #5636D0);
+    color:#fff;
+  }
+  /* 操作しやすいタップ領域 */
+  .btn, .tab, .choice, .chip{min-height:44px;}
+  .tab{white-space:nowrap;}
+  /* キーボード操作時のフォーカスをはっきり */
+  button:focus-visible, textarea:focus-visible, a:focus-visible{outline:3px solid #5B3FD0; outline-offset:3px;}
+
+  @media (max-width:560px){
+    /* 5つのタブをアイコン+短い文字の縦並びにして窮屈さを解消 */
+    .tabs{gap:2px; padding:4px;}
+    .tab{flex-direction:column; gap:3px; font-size:10.5px; line-height:1.25; padding:8px 0; min-height:54px; letter-spacing:0;}
+    .tab svg{display:block; width:20px; height:20px;}
+    .tagline{font-size:14px;}
+    .btn{width:100%;}
+    /* 背景の動きと重いぼかしを減らして軽く */
+    .orb{animation:none; filter:blur(28px);}
+    .app{-webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);}
+  }
+  @media (prefers-contrast: more){
+    :root{--ink-soft:#2F2D48; --ink-faint:#403E58;}
+    .app{background:rgba(255,255,255,.85);}
+  }
 </style>
 </head>
 <body>
