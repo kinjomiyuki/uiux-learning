@@ -1091,11 +1091,11 @@ async function saveStats(){
 }
 
 /* ============ CLAUDE CALL ============ */
-async function askMentor(kind, history){
+async function askMentor(kind, history, topic){
   const res = await fetch("/api/chat", {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({mode:kind, messages:history})
+    body: JSON.stringify({mode:kind, messages:history, topic})
   });
   let data = null;
   try{ data = await res.json(); }catch(e){}
@@ -1508,7 +1508,10 @@ async function sendChat(){
     const apiHistory = st.messages.map(m=>({role: m.role === "user" ? "user" : "assistant", content: m.text}));
 
   try{
-    const reply = await askMentor(mode, apiHistory);
+    const topicName = mode === "socratic"
+      ? (SOCRATIC_TOPICS.find(t=>t.id===socratic.topic) || {}).label
+      : (PRACTICE_SCENARIOS.find(x=>x.id===practice.scenario) || {}).title;
+    const reply = await askMentor(mode, apiHistory, topicName || "");
     const isSummary = mode === "socratic" && reply.startsWith("まとめ：");
     st.messages.push({role:"assistant", text:reply, summary:isSummary});
     if(isSummary){
