@@ -679,6 +679,9 @@
     /* 上部タブをドックに移したぶん空いた余白を詰める */
     .app-header .tagline{margin-bottom:8px;}
     main{padding-top:8px;}
+    /* チャットの「送る」は横幅いっぱいにせず、入力欄を残す */
+    .composer .btn{width:auto; flex:none; padding:12px 22px;}
+    .composer textarea{min-width:0;}
   }
   @media (prefers-contrast: more){
     :root{--ink-soft:#2F2D48; --ink-faint:#403E58;}
