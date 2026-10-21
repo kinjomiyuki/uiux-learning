@@ -598,6 +598,85 @@
     .orb{animation:none; filter:blur(28px);}
     .app{-webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);}
   }
+
+  /* ===== v5: ホーム(今日の目標・学習パス) + スマホ下部ドック ===== */
+  .dock{display:none;}
+  /* 6つに増えたタブが幅に収まるよう、PCでは余白を詰める */
+  @media (min-width:561px){ .tab{padding:12px 6px; gap:6px; font-size:13px; white-space:nowrap;} .tab svg{width:16px; height:16px;} }
+  .tab .ls{display:none;}
+  .goal-card{
+    display:flex; align-items:center; gap:22px; padding:22px 24px; margin-bottom:16px;
+    border-radius:var(--r-lg); background:var(--pane);
+    -webkit-backdrop-filter:blur(10px) saturate(190%); backdrop-filter:blur(10px) saturate(190%);
+    border:1px solid rgba(255,255,255,.7); box-shadow:var(--cast), var(--glass-rim);
+  }
+  .goal-card .ring{width:96px; height:96px; flex:none;}
+  .goal-card h3{margin:0 0 4px; font-size:18px; font-weight:700; line-height:1.5;}
+  .goal-card p{margin:0; font-size:14px; color:var(--ink-soft);}
+  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .tile{
+    padding:14px 8px; text-align:center; border-radius:var(--r-md);
+    background:var(--pane-in);
+    -webkit-backdrop-filter:blur(8px) saturate(190%) brightness(1.08); backdrop-filter:blur(8px) saturate(190%) brightness(1.08);
+    border:1px solid rgba(255,255,255,.8); box-shadow:var(--cast-sm), var(--glass-rim);
+  }
+  .tile b{display:block; font-family:var(--sans); font-size:24px; font-weight:800; line-height:1.3;}
+  .tile span{font-size:12px; font-weight:600; color:var(--ink-soft);}
+  .path{display:flex; flex-direction:column; gap:12px;}
+  .path-node{
+    display:flex; align-items:center; gap:14px; width:100%; min-height:64px; padding:14px 18px;
+    text-align:left; cursor:pointer; color:var(--ink); font-family:inherit;
+    background:var(--pane-in);
+    -webkit-backdrop-filter:blur(8px) saturate(190%) brightness(1.08); backdrop-filter:blur(8px) saturate(190%) brightness(1.08);
+    border:1px solid rgba(255,255,255,.8); border-radius:var(--r-md);
+    box-shadow:var(--cast-sm), var(--glass-rim);
+    transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .path-node:hover{transform:translateY(-2px); box-shadow:0 18px 20px -10px rgba(35,35,55,.38), 0 4px 6px -2px rgba(35,35,55,.12), var(--glass-rim);}
+  .pn-dot{
+    width:40px; height:40px; flex:none; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--sans); font-size:14px; font-weight:700; color:var(--violet-text);
+    background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(124,92,240,.14));
+    box-shadow:inset 0 1px 0 #fff, 0 3px 6px -2px rgba(35,35,55,.25);
+  }
+  .path-node.done .pn-dot{color:#0F4F46; background:linear-gradient(135deg, rgba(140,236,220,.9), rgba(70,200,180,.75));}
+  .path-node.cur{box-shadow:0 0 0 3px rgba(124,92,240,.5), var(--cast-sm), var(--glass-rim);}
+  .path-node.cur .pn-dot{color:#fff; background:linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,0) 52%), linear-gradient(135deg, #7A5AF0, #5636D0);}
+  .pn-t{display:flex; flex-direction:column; min-width:0;}
+  .pn-t b{font-size:15px; font-weight:700;}
+  .pn-t small{font-size:13px; line-height:1.5; color:var(--ink-soft);}
+  .week{display:grid; grid-template-columns:repeat(7,1fr); gap:8px; text-align:center; font-size:12px; font-weight:600; color:var(--ink-soft);}
+  .week i{
+    display:block; height:36px; margin-bottom:6px; border-radius:12px; background:rgba(35,35,55,.08);
+    box-shadow:inset 0 2px 4px rgba(35,35,55,.14), 0 1px 0 rgba(255,255,255,.8);
+  }
+  .week i.part{background:linear-gradient(135deg, rgba(140,236,220,.7), rgba(70,200,180,.5));}
+  .week i.full{background:linear-gradient(135deg, rgba(140,236,220,.95), rgba(104,72,232,.75));}
+  .week .today i{box-shadow:0 0 0 2px var(--violet-text), inset 0 1px 0 rgba(255,255,255,.6);}
+  .week .today span{color:var(--violet-text);}
+
+  @media (max-width:560px){
+    /* 主要タブを親指の届く下部のガラスのドックに移す */
+    .app-header .tabs{display:none;}
+    .dock{
+      display:flex; position:fixed; z-index:30;
+      left:max(10px, env(safe-area-inset-left, 0px)); right:max(10px, env(safe-area-inset-right, 0px));
+      bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+      border-radius:28px; padding:5px;
+      background:var(--pane-in);
+      -webkit-backdrop-filter:blur(16px) saturate(190%); backdrop-filter:blur(16px) saturate(190%);
+      border:1px solid rgba(255,255,255,.8); box-shadow:var(--cast), var(--glass-rim);
+    }
+    .app{padding-bottom:calc(112px + env(safe-area-inset-bottom, 0px));}
+    .composer{bottom:calc(92px + env(safe-area-inset-bottom, 0px));}
+    .tab .ll{display:none;}
+    .tab .ls{display:inline;}
+    .goal-card{padding:18px 16px; gap:16px;}
+    .goal-card .ring{width:80px; height:80px;}
+    .tile b{font-size:20px;}
+    .path-node{padding:12px 14px;}
+    .path-node .badge{display:none;}
+  }
   @media (prefers-contrast: more){
     :root{--ink-soft:#2F2D48; --ink-faint:#403E58;}
     .app{background:rgba(255,255,255,.85);}
@@ -613,16 +692,18 @@
       <div><div class="brand-sub">UI/UX LAB</div><h1>設計思考ラボ</h1></div>
     </div>
     <p class="tagline">クイズ・対話・疑似実践・実践ドリルなどの方法で、UI/UXの原則を「知っている」から「使える」に変えます。</p>
-    <nav class="tabs" id="tabs">
-      <button class="tab active" data-mode="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg>クイズ式</button>
-      <button class="tab" data-mode="socratic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>ソクラテス式</button>
+    <nav class="tabs" id="tabs" aria-label="学習モード">
+      <button class="tab active" data-mode="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>ホーム</button>
+      <button class="tab" data-mode="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="ll">クイズ式</span><span class="ls">クイズ</span></button>
+      <button class="tab" data-mode="socratic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="ll">ソクラテス式</span><span class="ls">対話</span></button>
       <button class="tab" data-mode="practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>疑似実践</button>
-      <button class="tab" data-mode="recall"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.4 1 2.5h6c0-1.1.3-1.8 1-2.5A6 6 0 0 0 12 3z"/><path d="M10 20h4"/></svg>思い出す式</button>
-      <button class="tab" data-mode="drill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/><path d="M17 17l2 2 3-4"/></svg>実践ドリル</button>
+      <button class="tab" data-mode="recall"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.4 1 2.5h6c0-1.1.3-1.8 1-2.5A6 6 0 0 0 12 3z"/><path d="M10 20h4"/></svg><span class="ll">思い出す式</span><span class="ls">思い出す</span></button>
+      <button class="tab" data-mode="drill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/><path d="M17 17l2 2 3-4"/></svg><span class="ll">実践ドリル</span><span class="ls">ドリル</span></button>
     </nav>
   </header>
   <main id="main"></main>
 </div>
+<nav class="tabs dock" id="dock" aria-label="メインメニュー"></nav>
 
 <script>
 /* ============ DATA ============ */
@@ -953,7 +1034,7 @@ document.getElementById("main").addEventListener("click", e=>{
   else if(act === "mc" && !drill.answered){
     drill.picked = Number(t.dataset.j); drill.answered = true;
     const ok = drill.picked === q.ans;
-    if(ok) drill.score++;
+    if(ok){ drill.score++; addXP(5, "drill"); }
     drill.log.push({t:q.q, pt:ok?1:0, max:1});
     render();
   }
@@ -962,6 +1043,7 @@ document.getElementById("main").addEventListener("click", e=>{
     drill.rj = Number(t.dataset.j); drill.answered = true;
     const pt = (drill.picked === q.good ? 1 : 0) + (drill.rj === q.r ? 1 : 0);
     drill.score += pt;
+    addXP(pt*3, "drill");
     drill.log.push({t:q.scn, pt, max:2});
     render();
   }
@@ -977,11 +1059,11 @@ document.getElementById("main").addEventListener("click", e=>{
 });
 
 /* ============ STATE ============ */
-let mode = "quiz";
+let mode = "home";
 let quiz = {i:0, score:0, answered:false, selected:-1, order:[...Array(QUIZ.length).keys()]};
 let socratic = {topic:null, messages:[], busy:false, done:false};
 let practice = {scenario:null, messages:[], busy:false};
-let stats = {quizBest:0, quizPlays:0, topicsExplored:[], recall:{}};
+let stats = {quizBest:0, quizPlays:0, topicsExplored:[], recall:{}, log:{}};
 let recall = {card:null, phase:"home", text:"", ticks:[]};
 
 /* best-effort persistence */
@@ -992,6 +1074,7 @@ async function loadStats(){
     else v = localStorage.getItem("uiux-lab-stats");
     if(v) stats = Object.assign(stats, JSON.parse(v));
     if(!stats.recall) stats.recall = {};
+    if(!stats.log) stats.log = {};
   }catch(e){ /* no persisted stats yet, or storage unavailable */ }
 }
 async function saveStats(){
@@ -1015,23 +1098,104 @@ async function askMentor(kind, history){
 }
 
 /* ============ RENDER: TABS ============ */
-document.getElementById("tabs").addEventListener("click", e=>{
-  const btn = e.target.closest(".tab");
-  if(!btn) return;
-  mode = btn.dataset.mode;
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t===btn));
+function syncTabs(){
+  document.querySelectorAll(".tab[data-mode]").forEach(t=>t.classList.toggle("active", t.dataset.mode === mode));
+}
+function goMode(m){
+  mode = m;
+  syncTabs();
   render();
+  if(m === "home") window.scrollTo({top:0, behavior:"instant"});
+}
+document.addEventListener("click", e=>{
+  const btn = e.target.closest(".tab[data-mode]");
+  if(btn) goMode(btn.dataset.mode);
 });
 
 function render(){
   const main = document.getElementById("main");
-  if(mode === "quiz") main.innerHTML = quizHTML();
+  if(mode === "home") main.innerHTML = homeHTML();
+  else if(mode === "quiz") main.innerHTML = quizHTML();
   else if(mode === "socratic") main.innerHTML = socratic.topic ? chatHTML("socratic") : socraticHomeHTML();
   else if(mode === "recall") main.innerHTML = recallHTML();
   else if(mode === "drill") main.innerHTML = drillHTML();
   else main.innerHTML = practice.scenario ? chatHTML("practice") : practiceHomeHTML();
   attachHandlers();
-  if(mode !== "drill") scrollThreadToBottom();
+  if(mode !== "drill" && mode !== "home") scrollThreadToBottom();
+}
+
+/* ============ HOME ============ */
+const GOAL_XP = 50;
+const PATH = [
+  {m:"quiz",     t:"クイズ式",     d:"原則の基礎を4択で確認します"},
+  {m:"socratic", t:"ソクラテス式", d:"質問に答えて、原則を自分の言葉にします"},
+  {m:"practice", t:"疑似実践",     d:"実務の場面で提案し、レビューをもらいます"},
+  {m:"recall",   t:"思い出す式",   d:"見ないで書き出して、記憶を強くします"},
+  {m:"drill",    t:"実践ドリル",   d:"画面を見て判断する練習です"}
+];
+function dayLog(d){ return (stats.log && stats.log[d]) || {xp:0, m:{}}; }
+function addXP(n, m){
+  if(!n) return;
+  if(!stats.log) stats.log = {};
+  const d = todayStr();
+  const l = stats.log[d] || (stats.log[d] = {xp:0, m:{}});
+  l.xp += n; l.m[m] = (l.m[m] || 0) + 1;
+  saveStats();
+}
+function streakDays(){
+  let d = todayStr(), n = 0;
+  if(dayLog(d).xp <= 0) d = addDays(d, -1);
+  while(dayLog(d).xp > 0){ n++; d = addDays(d, -1); }
+  return n;
+}
+function homeHTML(){
+  const t = todayStr(), l = dayLog(t);
+  const p = Math.min(1, l.xp / GOAL_XP), pct = Math.round(p*100), left = Math.max(0, GOAL_XP - l.xp);
+  const C = 2*Math.PI*34;
+  const ring = `<svg class="ring" viewBox="0 0 84 84" role="img" aria-label="今日の目標 ${pct}%">
+    <defs><linearGradient id="ring-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4FD1BC"/><stop offset="1" stop-color="#7C5CF0"/></linearGradient></defs>
+    <circle cx="42" cy="42" r="34" fill="none" stroke="rgba(35,35,55,.12)" stroke-width="9"/>
+    ${p>0 ? `<circle cx="42" cy="42" r="34" fill="none" stroke="url(#ring-g)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 42 42)"/>` : ""}
+    <text x="42" y="47" text-anchor="middle" font-size="16" font-weight="800" fill="#23223A" font-family="Plus Jakarta Sans,sans-serif">${pct}%</text>
+  </svg>`;
+  const total = Object.values(stats.log || {}).reduce((a,v)=>a+(v.xp||0), 0);
+  const due = RECALL_CARDS.filter(c=>stats.recall[c.id] && daysUntil(stats.recall[c.id].due)<=0);
+  const curIdx = PATH.findIndex(x=>!l.m[x.m]);
+  const nodes = PATH.map((x,i)=>{
+    const done = !!l.m[x.m], cur = i === curIdx;
+    return `<button class="path-node ${done?"done":""} ${cur?"cur":""}" data-go="${x.m}">
+      <span class="pn-dot">${done?"✓":i+1}</span>
+      <span class="pn-t"><b>${x.t}</b><small>${x.d}</small></span>
+      ${done?'<span class="badge ok">今日やった</span>':cur?'<span class="badge">次はこれ</span>':""}
+    </button>`;
+  }).join("");
+  const week = [6,5,4,3,2,1,0].map(i=>{
+    const d = addDays(t, -i), xp = dayLog(d).xp;
+    const [y,m,dd] = d.split("-").map(Number);
+    const cls = xp >= GOAL_XP ? "full" : xp > 0 ? "part" : "";
+    return `<div class="${i===0?"today":""}"><i class="${cls}" title="${xp} XP"></i><span>${"日月火水木金土"[new Date(y,m-1,dd).getDay()]}</span></div>`;
+  }).join("");
+  return `
+    <div class="eyebrow">TODAY</div>
+    <h2 class="panel-title">今日の学習</h2>
+    <div class="goal-card">
+      ${ring}
+      <div>
+        <h3>${left ? `今日はあと ${left} XP` : "今日の目標を達成しました"}</h3>
+        <p>${left ? `目標は1日${GOAL_XP}XPです。答えたり書いたりすると、XPがたまります。` : "明日も続けると、連続日数が伸びます。"}</p>
+      </div>
+    </div>
+    <div class="tiles">
+      <div class="tile"><b>${streakDays()}</b><span>連続日数</span></div>
+      <div class="tile"><b>${l.xp}</b><span>今日のXP</span></div>
+      <div class="tile"><b>${total}</b><span>累計XP</span></div>
+    </div>
+    ${due.length ? `<div class="sec-label">今日、思い出すもの（${due.length}）</div>
+      <div class="topic-grid">${due.map(c=>`<button class="chip" data-home-recall="${c.id}"><span class="ic ${CHIP_TONES[RECALL_CARDS.indexOf(c)%6]}">${ICONS.spark}</span><span>${c.title}</span><span class="badge due">今日、思い出す</span></button>`).join("")}</div>` : ""}
+    <div class="sec-label">今日の学習パス</div>
+    <div class="path">${nodes}</div>
+    <div class="sec-label">この1週間</div>
+    <div class="week">${week}</div>`;
 }
 
 /* ============ QUIZ ============ */
@@ -1217,6 +1381,13 @@ function scrollThreadToBottom(){
 
 /* ============ EVENT WIRING ============ */
 function attachHandlers(){
+  // home
+  document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click", ()=>goMode(b.dataset.go)));
+  document.querySelectorAll("[data-home-recall]").forEach(b=>b.addEventListener("click", ()=>{
+    recall = {card:b.dataset.homeRecall, phase:"study", text:"", ticks:[]};
+    goMode("recall");
+    window.scrollTo({top:0, behavior:"instant"});
+  }));
   // quiz
   document.querySelectorAll(".choice").forEach(b=>{
     b.addEventListener("click", ()=>{
@@ -1224,7 +1395,7 @@ function attachHandlers(){
       quiz.answered = true;
       quiz.selected = Number(b.dataset.idx);
       const qi = quiz.order[quiz.i];
-      if(quiz.selected === QUIZ[qi].a) quiz.score++;
+      if(quiz.selected === QUIZ[qi].a){ quiz.score++; addXP(5, "quiz"); }
       render();
     });
   });
@@ -1234,6 +1405,7 @@ function attachHandlers(){
     if(quiz.i >= QUIZ.length){
       stats.quizPlays++;
       if(quiz.score > stats.quizBest) stats.quizBest = quiz.score;
+      addXP(10, "quiz");
       saveStats();
     }
     render();
@@ -1288,6 +1460,7 @@ function attachHandlers(){
     let box = n===c.points.length ? Math.min(prev.box+1, RECALL_STEPS.length-1) : n>0 ? Math.max(prev.box,0) : 0;
     if(box<0) box = 0;
     stats.recall[c.id] = {box, due:addDays(todayStr(), RECALL_STEPS[box]), last:todayStr()};
+    addXP(10 + 5*n, "recall");
     saveStats(); setPhase("done");
   });
   const ra = document.getElementById("recall-again");
@@ -1322,6 +1495,7 @@ async function sendChat(){
   if(!text) return;
   const st = mode === "socratic" ? socratic : practice;
   st.messages.push({role:"user", text});
+  addXP(mode === "practice" ? 5 : 2, mode);
   st.busy = true;
   render();
 
@@ -1335,6 +1509,7 @@ async function sendChat(){
       socratic.done = true;
       if(!stats.topicsExplored.includes(socratic.topic)){
         stats.topicsExplored.push(socratic.topic);
+        addXP(20, "socratic");
         saveStats();
       }
     }
@@ -1348,6 +1523,8 @@ async function sendChat(){
 /* ============ INIT ============ */
 (async function init(){
   await loadStats();
+  document.getElementById("dock").innerHTML = document.getElementById("tabs").innerHTML;
+  syncTabs();
   render();
 })();
 </script>
