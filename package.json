@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "echo 'Static site - no build needed'"
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "npx -y netlify-cli deploy --prod --site 694bbb39-8dc3-4c1c-b627-6d6cd089ffe2"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
