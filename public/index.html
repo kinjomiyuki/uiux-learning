@@ -6,6 +6,7 @@
 <title>設計思考ラボ — UI/UX学習アプリ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -683,6 +684,21 @@
     .composer .btn{width:auto; flex:none; padding:12px 22px;}
     .composer textarea{min-width:0;}
   }
+
+  /* ===== Font Awesome（自前で同梱: vendor/fontawesome） ===== */
+  .fa-solid{line-height:1;}
+  .brand-icon i{font-size:22px;}
+  .tab i{font-size:16px; width:18px; text-align:center; flex:none;}
+  .tab.active i{color:var(--violet);}
+  .ic i{font-size:19px;}
+  .back-link i{font-size:12px;}
+  .pn-dot i{font-size:15px;}
+  .points .dot i{font-size:13px;}
+  .mock .tabs i{font-size:18px; line-height:22px; height:22px;}
+  .mock .msg i{font-size:11px;}
+  @media (max-width:560px){
+    .tab i{display:block; font-size:19px; width:auto; height:20px; line-height:20px;}
+  }
   @media (prefers-contrast: more){
     :root{--ink-soft:#2F2D48; --ink-faint:#403E58;}
     .app{background:rgba(255,255,255,.85);}
@@ -694,17 +710,17 @@
 <div class="app">
   <header class="app-header">
     <div class="brand">
-      <span class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="4"/><path d="M8 21h8M12 18v3"/></svg></span>
+      <span class="brand-icon"><i class="fa-solid fa-display" aria-hidden="true"></i></span>
       <div><div class="brand-sub">UI/UX LAB</div><h1>設計思考ラボ</h1></div>
     </div>
     <p class="tagline">クイズ・対話・疑似実践・実践ドリルなどの方法で、UI/UXの原則を「知っている」から「使える」に変えます。</p>
     <nav class="tabs" id="tabs" aria-label="学習モード">
-      <button class="tab active" data-mode="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>ホーム</button>
-      <button class="tab" data-mode="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="ll">クイズ式</span><span class="ls">クイズ</span></button>
-      <button class="tab" data-mode="socratic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="ll">ソクラテス式</span><span class="ls">対話</span></button>
-      <button class="tab" data-mode="practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>疑似実践</button>
-      <button class="tab" data-mode="recall"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.4 1 2.5h6c0-1.1.3-1.8 1-2.5A6 6 0 0 0 12 3z"/><path d="M10 20h4"/></svg><span class="ll">思い出す式</span><span class="ls">思い出す</span></button>
-      <button class="tab" data-mode="drill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/><path d="M17 17l2 2 3-4"/></svg><span class="ll">実践ドリル</span><span class="ls">ドリル</span></button>
+      <button class="tab active" data-mode="home"><i class="fa-solid fa-house" aria-hidden="true"></i>ホーム</button>
+      <button class="tab" data-mode="quiz"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span class="ll">クイズ式</span><span class="ls">クイズ</span></button>
+      <button class="tab" data-mode="socratic"><i class="fa-solid fa-comments" aria-hidden="true"></i><span class="ll">ソクラテス式</span><span class="ls">対話</span></button>
+      <button class="tab" data-mode="practice"><i class="fa-solid fa-star" aria-hidden="true"></i>疑似実践</button>
+      <button class="tab" data-mode="recall"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><span class="ll">思い出す式</span><span class="ls">思い出す</span></button>
+      <button class="tab" data-mode="drill"><i class="fa-solid fa-list-check" aria-hidden="true"></i><span class="ll">実践ドリル</span><span class="ls">ドリル</span></button>
     </nav>
   </header>
   <main id="main"></main>
@@ -817,12 +833,12 @@ const RECALL_STEPS = [1,3,7,14,30];
 
 /* ============ DRILL (実践ドリル) ============ */
 const MI={
-  home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
-  search:'<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>',
-  bell:'<svg viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg>',
-  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>'
+  home:'<i class="fa-solid fa-house" aria-hidden="true"></i>',
+  search:'<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>',
+  bell:'<i class="fa-solid fa-bell" aria-hidden="true"></i>',
+  user:'<i class="fa-solid fa-user" aria-hidden="true"></i>'
 };
-const MWARN='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 17h.01"/></svg>';
+const MWARN='<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>';
 
 const DRILL_SETS={
 basic:{
@@ -1170,7 +1186,7 @@ function homeHTML(){
   const nodes = PATH.map((x,i)=>{
     const done = !!l.m[x.m], cur = i === curIdx;
     return `<button class="path-node ${done?"done":""} ${cur?"cur":""}" data-go="${x.m}">
-      <span class="pn-dot">${done?"✓":i+1}</span>
+      <span class="pn-dot">${done?'<i class="fa-solid fa-check" aria-hidden="true"></i>':i+1}</span>
       <span class="pn-t"><b>${x.t}</b><small>${x.d}</small></span>
       ${done?'<span class="badge ok">今日やった</span>':cur?'<span class="badge">次はこれ</span>':""}
     </button>`;
@@ -1243,9 +1259,9 @@ function quizHTML(){
 }
 
 const ICONS = {
-  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
-  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
-  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>'
+  spark:'<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>',
+  back:'<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>',
+  doc:'<i class="fa-solid fa-file-lines" aria-hidden="true"></i>'
 };
 const CHIP_TONES = ["","t","r","","t","r"];
 /* ============ SOCRATIC ============ */
@@ -1370,7 +1386,7 @@ function recallHTML(){
       <div class="eyebrow">RESULT</div>
       <div class="result-num">${n} / ${tot}</div>
       <p class="lede" style="margin-bottom:18px;">${msg}</p>
-      <ul class="points" style="text-align:left;">${c.points.map((t,i)=>`<li class="${recall.ticks[i]?"hit":"miss"}"><span class="dot">${recall.ticks[i]?"○":"×"}</span><span>${t}</span></li>`).join("")}</ul>
+      <ul class="points" style="text-align:left;">${c.points.map((t,i)=>`<li class="${recall.ticks[i]?"hit":"miss"}"><span class="dot">${recall.ticks[i]?'<i class="fa-solid fa-circle-check" aria-hidden="true"></i>':'<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>'}</span><span>${t}</span></li>`).join("")}</ul>
       <p class="hint" style="margin-top:20px;">次に思い出す日：<b>${r?r.due.replace(/-/g,"/"):""}</b>（${r?daysUntil(r.due):0}日後）</p>
     </div>
     <div class="btn-row"><button class="btn secondary" id="recall-again">もう一度書き出す</button><button class="btn" id="recall-back2">テーマ一覧へ</button></div>`;

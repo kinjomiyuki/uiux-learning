@@ -2,7 +2,10 @@
 <html lang="ja">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<style>body{margin:0}</style>
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+<style>body{margin:0}.mock .tabs i{font-size:18px;line-height:22px;height:22px}
+.mock .msg i{font-size:11px}
+</style>
 <title>UI/UX実践ドリル</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
@@ -114,12 +117,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 <script>
 const ic={
-  home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
-  search:'<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>',
-  bell:'<svg viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg>',
-  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>'
+  home:'<i class="fa-solid fa-house" aria-hidden="true"></i>',
+  search:'<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>',
+  bell:'<i class="fa-solid fa-bell" aria-hidden="true"></i>',
+  user:'<i class="fa-solid fa-user" aria-hidden="true"></i>'
 };
-const warn='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 17h.01"/></svg>';
+const warn='<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>';
 
 const SETS={
 basic:{
